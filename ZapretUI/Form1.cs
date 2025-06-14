@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,10 +21,13 @@ namespace ZapretUI
         public Form1()
         {
             InitializeComponent();
+            Rectangle workingArea = Screen.GetWorkingArea(this);
+            this.Location = new Point(workingArea.Right - Size.Width,
+                                      workingArea.Bottom - Size.Height);
             notifyIcon1.Visible = false;
 
-            string dirPath = @"C:\Users\fedko\OneDrive\������� ����\172b";
-            //Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string dirPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//@"C:\Users\fedko\OneDrive\������� ����\172b";
+            
             DirectoryInfo d = new DirectoryInfo(dirPath);//Assuming Test is your Folder
             FileInfo[] Files = d.GetFiles("g*.bat"); //Getting Text files
             comboBox1.DataSource = Files;
@@ -57,7 +61,8 @@ namespace ZapretUI
         {
             string script, scriptPath;
             script = comboBox1.Text;
-            scriptPath = @"C:\Users\fedko\OneDrive\������� ����\172b\" + script;
+            scriptPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + script;
+            MessageBox.Show(scriptPath);
             ProcessStartInfo zapretProcessInfo = new ProcessStartInfo(scriptPath)
             {
                 CreateNoWindow = true,
@@ -72,7 +77,9 @@ namespace ZapretUI
 
             await CrossOrTick();
             labelStatus.Text = "Status: Running!";
-            notifyIcon1.Icon = new Icon(GetType(), "runningICO");
+            //notifyIcon1.Icon = new Icon(this.GetType(), "runningICO");
+            notifyIcon1.Icon = Properties.Resources.runningICO;
+            Form1.ActiveForm.Icon = Properties.Resources.runningICO;
         }
 
         /* �������� �������� ����������*/
@@ -114,7 +121,7 @@ namespace ZapretUI
         {
             bool runnig = false;
             if (labelStatus.Text == "Status: Running!") { runnig = true; }
-            labelStatus.Text = labelStatus.Text + "                  Updating...";
+            labelStatus.Text = labelStatus.Text + "                          Updating...";
             await CrossOrTick();
             if (runnig == true)
             {
@@ -144,7 +151,9 @@ namespace ZapretUI
                 CreateNoWindow = true,
 
             };
-            notifyIcon1.Icon = new Icon(GetType(), "stoppedICO");
+            notifyIcon1.Icon = Properties.Resources.stoppedICO;
+            Form1.ActiveForm.Icon = Properties.Resources.stoppedICO;
+            
             // MessageBox.Show("ABOAB " + stopScriptInfo.Arguments);
 
             using (Process process = new Process { StartInfo = stopScriptInfo })
@@ -172,7 +181,7 @@ namespace ZapretUI
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (MessageBox.Show("�� ����������� ������� ����������?\n(��� ������� � ������ ����� ���������)", "��� �� ������?", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.No)
+            if (MessageBox.Show("Вы собираетесь закрыть приложение?\n(Все скрипты и обходы будут завершены)", "РКН не сосать?", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.No)
             {
                 e.Cancel = true;
             }
@@ -187,12 +196,12 @@ namespace ZapretUI
 
         private void Form1_Resize(object sender, EventArgs e)
         {
-            // ��������� ���� ����, � ���� ��� ���� ��������, ������ �������        
+            // проверяем наше окно, и если оно было свернуто, делаем событие        
             if (WindowState == FormWindowState.Minimized)
             {
-                // ������ ���� ���� �� ������
+                // прячем наше окно из панели
                 this.ShowInTaskbar = false;
-                // ������ ���� ������ � ���� ��������
+                // делаем нашу иконку в трее активной
                 notifyIcon1.Visible = true;
             }
         }
@@ -209,11 +218,11 @@ namespace ZapretUI
 
         private void showMainForm()
         {
-            // ������ ���� ������ �������
+            // делаем нашу иконку скрытой
             notifyIcon1.Visible = false;
-            // ���������� ����������� ���� � ������
+            // возвращаем отображение окна в панели
             this.ShowInTaskbar = true;
-            //������������� ����
+            //разворачиваем окно
             WindowState = FormWindowState.Normal;
         }
 

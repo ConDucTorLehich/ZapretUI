@@ -148,221 +148,255 @@ namespace ZapretUI
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
-            notifyIcon1 = new NotifyIcon(components);
-            label1 = new Label();
-            comboBox1 = new ComboBox();
-            buttonStart = new Button();
-            buttonStop = new Button();
-            buttonReboot = new Button();
-            label2 = new Label();
-            buttonUpd = new Button();
-            labelStatus = new Label();
-            pictureBox1 = new PictureBox();
-            pictureBox2 = new PictureBox();
-            button1 = new Button();
-            galkaDiscord = new PictureBox();
-            galkaYoutube = new PictureBox();
-            crossYoutube = new PictureBox();
-            crossDiscord = new PictureBox();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)galkaDiscord).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)galkaYoutube).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)crossYoutube).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)crossDiscord).BeginInit();
-            SuspendLayout();
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.label1 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.buttonStart = new System.Windows.Forms.Button();
+            this.buttonStop = new System.Windows.Forms.Button();
+            this.buttonReboot = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.labelStatus = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.galkaYoutube = new System.Windows.Forms.PictureBox();
+            this.galkaDiscord = new System.Windows.Forms.PictureBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.buttonUpd = new System.Windows.Forms.Button();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.crossYoutube = new System.Windows.Forms.PictureBox();
+            this.crossDiscord = new System.Windows.Forms.PictureBox();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            ((System.ComponentModel.ISupportInitialize)(this.galkaYoutube)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.galkaDiscord)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.crossYoutube)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.crossDiscord)).BeginInit();
+            this.SuspendLayout();
             // 
             // notifyIcon1
             // 
-            notifyIcon1.Text = "notifyIcon1";
-            notifyIcon1.Visible = true;
+            this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
+            this.notifyIcon1.Text = "ZapretYT&DS";
+            this.notifyIcon1.Visible = true;
+            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
             // 
             // label1
             // 
-            label1.BackColor = Color.Transparent;
-            label1.Font = new Font("Segoe Print", 24F, FontStyle.Italic, GraphicsUnit.Point, 204);
-            label1.Location = new Point(-26, -4);
-            label1.Name = "label1";
-            label1.Size = new Size(329, 171);
-            label1.TabIndex = 0;
-            label1.Text = "Zapret YouTube & Discord By ConDucTor";
-            label1.TextAlign = ContentAlignment.MiddleCenter;
-            label1.UseMnemonic = false;
+            this.label1.BackColor = System.Drawing.Color.Transparent;
+            this.label1.Font = new System.Drawing.Font("Segoe Print", 24F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.Location = new System.Drawing.Point(-26, -4);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(329, 171);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Zapret YouTube & Discord By ConDucTor";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label1.UseMnemonic = false;
             // 
             // comboBox1
             // 
-            comboBox1.FormattingEnabled = true;
-            comboBox1.Location = new Point(12, 170);
-            comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(260, 23);
-            comboBox1.TabIndex = 1;
-            comboBox1.Text = "Выберите тип запрета";
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(12, 170);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(260, 21);
+            this.comboBox1.TabIndex = 1;
+            this.comboBox1.Text = "Выберите тип запрета";
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // buttonStart
             // 
-            buttonStart.Location = new Point(12, 210);
-            buttonStart.Name = "buttonStart";
-            buttonStart.Size = new Size(93, 38);
-            buttonStart.TabIndex = 2;
-            buttonStart.Text = "Start";
-            buttonStart.UseVisualStyleBackColor = true;
+            this.buttonStart.Location = new System.Drawing.Point(12, 210);
+            this.buttonStart.Name = "buttonStart";
+            this.buttonStart.Size = new System.Drawing.Size(93, 38);
+            this.buttonStart.TabIndex = 2;
+            this.buttonStart.Text = "Start";
+            this.buttonStart.UseVisualStyleBackColor = true;
+            this.buttonStart.Click += new System.EventHandler(this.buttonStart_Click);
             // 
             // buttonStop
             // 
-            buttonStop.Location = new Point(179, 210);
-            buttonStop.Name = "buttonStop";
-            buttonStop.Size = new Size(93, 38);
-            buttonStop.TabIndex = 3;
-            buttonStop.Text = "Stop";
-            buttonStop.UseVisualStyleBackColor = true;
+            this.buttonStop.Location = new System.Drawing.Point(179, 210);
+            this.buttonStop.Name = "buttonStop";
+            this.buttonStop.Size = new System.Drawing.Size(93, 38);
+            this.buttonStop.TabIndex = 3;
+            this.buttonStop.Text = "Stop";
+            this.buttonStop.UseVisualStyleBackColor = true;
+            this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
             // 
             // buttonReboot
             // 
-            buttonReboot.Location = new Point(12, 210);
-            buttonReboot.Name = "buttonReboot";
-            buttonReboot.Size = new Size(93, 38);
-            buttonReboot.TabIndex = 4;
-            buttonReboot.Text = "Reboot";
-            buttonReboot.UseVisualStyleBackColor = true;
+            this.buttonReboot.Enabled = false;
+            this.buttonReboot.Location = new System.Drawing.Point(12, 210);
+            this.buttonReboot.Name = "buttonReboot";
+            this.buttonReboot.Size = new System.Drawing.Size(93, 38);
+            this.buttonReboot.TabIndex = 4;
+            this.buttonReboot.Text = "Reboot";
+            this.buttonReboot.UseVisualStyleBackColor = true;
+            this.buttonReboot.Visible = false;
+            this.buttonReboot.Click += new System.EventHandler(this.buttonReboot_Click);
             // 
             // label2
             // 
-            label2.Location = new Point(-1, 513);
-            label2.Name = "label2";
-            label2.Size = new Size(286, 30);
-            label2.TabIndex = 5;
-            label2.Text = "Upd Available!(or not)                                    ver. 1.7.2b";
-            label2.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // buttonUpd
-            // 
-            buttonUpd.BackColor = Color.Transparent;
-            buttonUpd.BackgroundImage = Properties.Resources.upd;
-            buttonUpd.BackgroundImageLayout = ImageLayout.Zoom;
-            buttonUpd.Location = new Point(235, 272);
-            buttonUpd.Name = "buttonUpd";
-            buttonUpd.Size = new Size(30, 28);
-            buttonUpd.TabIndex = 6;
-            buttonUpd.UseVisualStyleBackColor = false;
+            this.label2.Location = new System.Drawing.Point(-1, 492);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(286, 30);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "Upd Available!(or not)                 ver. scr: 1.7.2b/ui: 0.9.9";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // labelStatus
             // 
-            labelStatus.Location = new Point(12, 272);
-            labelStatus.Name = "labelStatus";
-            labelStatus.Size = new Size(231, 28);
-            labelStatus.TabIndex = 7;
-            labelStatus.Text = "Status:";
-            labelStatus.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // pictureBox1
-            // 
-            pictureBox1.BackColor = Color.Transparent;
-            pictureBox1.Image = Properties.Resources.discordLogo;
-            pictureBox1.Location = new Point(-1, 303);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(211, 77);
-            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBox1.TabIndex = 8;
-            pictureBox1.TabStop = false;
-            // 
-            // pictureBox2
-            // 
-            pictureBox2.BackColor = Color.Transparent;
-            pictureBox2.Image = Properties.Resources.YouTubeLogo;
-            pictureBox2.Location = new Point(-13, 359);
-            pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(211, 98);
-            pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBox2.TabIndex = 9;
-            pictureBox2.TabStop = false;
+            this.labelStatus.Location = new System.Drawing.Point(12, 251);
+            this.labelStatus.Name = "labelStatus";
+            this.labelStatus.Size = new System.Drawing.Size(231, 28);
+            this.labelStatus.TabIndex = 7;
+            this.labelStatus.Text = "Status: Stopped";
+            this.labelStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // button1
             // 
-            button1.Location = new Point(12, 487);
-            button1.Name = "button1";
-            button1.Size = new Size(260, 23);
-            button1.TabIndex = 10;
-            button1.Text = "Проверка обновлений(не реализовано)";
-            button1.UseVisualStyleBackColor = true;
-            // 
-            // galkaDiscord
-            // 
-            galkaDiscord.BackColor = Color.Transparent;
-            galkaDiscord.Image = Properties.Resources.galka;
-            galkaDiscord.Location = new Point(227, 318);
-            galkaDiscord.Name = "galkaDiscord";
-            galkaDiscord.Size = new Size(45, 43);
-            galkaDiscord.SizeMode = PictureBoxSizeMode.Zoom;
-            galkaDiscord.TabIndex = 11;
-            galkaDiscord.TabStop = false;
+            this.button1.Location = new System.Drawing.Point(12, 466);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(260, 23);
+            this.button1.TabIndex = 10;
+            this.button1.Text = "Проверка обновлений (не реализовано)";
+            this.button1.UseVisualStyleBackColor = true;
             // 
             // galkaYoutube
             // 
-            galkaYoutube.BackColor = Color.Transparent;
-            galkaYoutube.Image = Properties.Resources.galka;
-            galkaYoutube.Location = new Point(227, 389);
-            galkaYoutube.Name = "galkaYoutube";
-            galkaYoutube.Size = new Size(45, 43);
-            galkaYoutube.SizeMode = PictureBoxSizeMode.Zoom;
-            galkaYoutube.TabIndex = 12;
-            galkaYoutube.TabStop = false;
+            this.galkaYoutube.BackColor = System.Drawing.Color.Transparent;
+            this.galkaYoutube.Image = global::ZapretUI.Properties.Resources.galka;
+            this.galkaYoutube.Location = new System.Drawing.Point(227, 368);
+            this.galkaYoutube.Name = "galkaYoutube";
+            this.galkaYoutube.Size = new System.Drawing.Size(45, 43);
+            this.galkaYoutube.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.galkaYoutube.TabIndex = 12;
+            this.galkaYoutube.TabStop = false;
+            this.galkaYoutube.Visible = false;
+            // 
+            // galkaDiscord
+            // 
+            this.galkaDiscord.BackColor = System.Drawing.Color.Transparent;
+            this.galkaDiscord.Image = global::ZapretUI.Properties.Resources.galka;
+            this.galkaDiscord.Location = new System.Drawing.Point(227, 297);
+            this.galkaDiscord.Name = "galkaDiscord";
+            this.galkaDiscord.Size = new System.Drawing.Size(45, 43);
+            this.galkaDiscord.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.galkaDiscord.TabIndex = 11;
+            this.galkaDiscord.TabStop = false;
+            this.galkaDiscord.Visible = false;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
+            this.pictureBox1.Image = global::ZapretUI.Properties.Resources.discordLogo;
+            this.pictureBox1.Location = new System.Drawing.Point(5, 282);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(211, 77);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 8;
+            this.pictureBox1.TabStop = false;
+            // 
+            // buttonUpd
+            // 
+            this.buttonUpd.BackColor = System.Drawing.Color.Transparent;
+            this.buttonUpd.BackgroundImage = global::ZapretUI.Properties.Resources.upd;
+            this.buttonUpd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.buttonUpd.Location = new System.Drawing.Point(235, 251);
+            this.buttonUpd.Name = "buttonUpd";
+            this.buttonUpd.Size = new System.Drawing.Size(30, 28);
+            this.buttonUpd.TabIndex = 6;
+            this.buttonUpd.UseVisualStyleBackColor = false;
+            this.buttonUpd.Click += new System.EventHandler(this.buttonUpd_Click);
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.BackColor = System.Drawing.Color.Transparent;
+            this.pictureBox2.Image = global::ZapretUI.Properties.Resources.YouTubeLogo;
+            this.pictureBox2.Location = new System.Drawing.Point(-7, 338);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(211, 98);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox2.TabIndex = 9;
+            this.pictureBox2.TabStop = false;
             // 
             // crossYoutube
             // 
-            crossYoutube.BackColor = Color.Transparent;
-            crossYoutube.Image = Properties.Resources.krestik;
-            crossYoutube.Location = new Point(227, 389);
-            crossYoutube.Name = "crossYoutube";
-            crossYoutube.Size = new Size(45, 43);
-            crossYoutube.SizeMode = PictureBoxSizeMode.Zoom;
-            crossYoutube.TabIndex = 14;
-            crossYoutube.TabStop = false;
+            this.crossYoutube.BackColor = System.Drawing.Color.Transparent;
+            this.crossYoutube.Image = global::ZapretUI.Properties.Resources.krestik;
+            this.crossYoutube.Location = new System.Drawing.Point(227, 368);
+            this.crossYoutube.Name = "crossYoutube";
+            this.crossYoutube.Size = new System.Drawing.Size(45, 43);
+            this.crossYoutube.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.crossYoutube.TabIndex = 14;
+            this.crossYoutube.TabStop = false;
+            this.crossYoutube.Visible = false;
             // 
             // crossDiscord
             // 
-            crossDiscord.BackColor = Color.Transparent;
-            crossDiscord.Image = Properties.Resources.krestik;
-            crossDiscord.Location = new Point(227, 318);
-            crossDiscord.Name = "crossDiscord";
-            crossDiscord.Size = new Size(45, 43);
-            crossDiscord.SizeMode = PictureBoxSizeMode.Zoom;
-            crossDiscord.TabIndex = 13;
-            crossDiscord.TabStop = false;
+            this.crossDiscord.BackColor = System.Drawing.Color.Transparent;
+            this.crossDiscord.Image = global::ZapretUI.Properties.Resources.krestik;
+            this.crossDiscord.Location = new System.Drawing.Point(227, 297);
+            this.crossDiscord.Name = "crossDiscord";
+            this.crossDiscord.Size = new System.Drawing.Size(45, 43);
+            this.crossDiscord.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.crossDiscord.TabIndex = 13;
+            this.crossDiscord.TabStop = false;
+            this.crossDiscord.Visible = false;
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(278, 24);
+            this.menuStrip1.TabIndex = 15;
+            this.menuStrip1.Text = "menuStrip1";
             // 
             // Form1
             // 
-            AutoSize = true;
-            ClientSize = new Size(284, 538);
-            Controls.Add(crossYoutube);
-            Controls.Add(crossDiscord);
-            Controls.Add(galkaYoutube);
-            Controls.Add(galkaDiscord);
-            Controls.Add(button1);
-            Controls.Add(pictureBox1);
-            Controls.Add(buttonUpd);
-            Controls.Add(label2);
-            Controls.Add(buttonReboot);
-            Controls.Add(buttonStop);
-            Controls.Add(buttonStart);
-            Controls.Add(comboBox1);
-            Controls.Add(label1);
-            Controls.Add(labelStatus);
-            Controls.Add(pictureBox2);
-            Name = "Form1";
-            Text = "РКН Сосамба!";
-            Load += Form1_Load;
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
-            ((System.ComponentModel.ISupportInitialize)galkaDiscord).EndInit();
-            ((System.ComponentModel.ISupportInitialize)galkaYoutube).EndInit();
-            ((System.ComponentModel.ISupportInitialize)crossYoutube).EndInit();
-            ((System.ComponentModel.ISupportInitialize)crossDiscord).EndInit();
-            ResumeLayout(false);
+            this.ClientSize = new System.Drawing.Size(278, 517);
+            this.Controls.Add(this.galkaYoutube);
+            this.Controls.Add(this.galkaDiscord);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.buttonUpd);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.buttonStop);
+            this.Controls.Add(this.buttonStart);
+            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.labelStatus);
+            this.Controls.Add(this.pictureBox2);
+            this.Controls.Add(this.crossYoutube);
+            this.Controls.Add(this.crossDiscord);
+            this.Controls.Add(this.buttonReboot);
+            this.Controls.Add(this.menuStrip1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menuStrip1;
+            this.MaximizeBox = false;
+            this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+            this.Text = "РКН Сосамба!";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
+            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Resize += new System.EventHandler(this.Form1_Resize);
+            ((System.ComponentModel.ISupportInitialize)(this.galkaYoutube)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.galkaDiscord)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.crossYoutube)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.crossDiscord)).EndInit();
+            this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
+
+        private MenuStrip menuStrip1;
     }
 }
 
