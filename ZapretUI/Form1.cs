@@ -5,14 +5,18 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 
 namespace ZapretUI
@@ -20,45 +24,54 @@ namespace ZapretUI
     public partial class Form1 : Form
     {
         bool forceExit = false;
+        string localVersionUI = "0.9.9";
+        string localVersionZapret = "1.8.2";
         public Form1()
         {
 
-            string dirPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//@"C:\Users\fedko\OneDrive\������� ����\172b";
+            InitializeComponent();
 
-            DirectoryInfo d = new DirectoryInfo(dirPath);//Assuming Test is your Folder
-            FileInfo[] Files = d.GetFiles("g*.bat"); //Getting Text files
-            bool check = Files.Length > 0;
-            if (!check)
+
+            string dirWorkPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//@"C:\Users\fedko\OneDrive\������� ����\172b";
+            DirectoryInfo d = new DirectoryInfo(dirWorkPath);//Assuming Test is your Folder
+
+            //Проверка установленных скриптов запрета
+            DirectoryInfo[] directories = d.GetDirectories("zapret-discord-youtube-*");
+            if (directories.Length == 0)
             {
-                forceExit = true;
-                MessageBox.Show("Файл .exe должен находиться с файлами запрета!");
-                this.Close();
+                string zipName = dirWorkPath + "/zapret-discord-youtube-" + localVersionZapret + ".zip";
+                string downloadLink = "https://github.com/Flowseal/zapret-discord-youtube/releases/download/" + localVersionZapret + "/zapret-discord-youtube-" + localVersionZapret + ".zip";
+                DownloadFile(downloadLink, zipName);
+                MessageBox.Show("FlowSeal Zapret успешно скачан!");
+                ZipFile.ExtractToDirectory(zipName, dirWorkPath + "/zapret-discord-youtube-" + localVersionZapret);
+                MessageBox.Show("Запускаемся!");
+                File.Delete(zipName);
             }
-            if (!forceExit)
+
+            string dirZapret = dirWorkPath + "/zapret-discord-youtube-" + localVersionZapret;
+            DirectoryInfo zapretDirInfo = new DirectoryInfo(dirZapret);
+            FileInfo[] Files = zapretDirInfo.GetFiles("g*.bat"); //Getting Text files
+
+
+            Rectangle workingArea = Screen.GetWorkingArea(this);
+            this.Location = new Point(workingArea.Right - Size.Width,
+                                      workingArea.Bottom - Size.Height);
+            notifyIcon1.Visible = false;
+
+            comboBox1.DataSource = Files;
+            comboBox1.DisplayMember = "Name";
+
+            foreach (var item in Files)
             {
-
-
-                InitializeComponent();
-
-                Rectangle workingArea = Screen.GetWorkingArea(this);
-                this.Location = new Point(workingArea.Right - Size.Width,
-                                          workingArea.Bottom - Size.Height);
-                notifyIcon1.Visible = false;
-
-                comboBox1.DataSource = Files;
-                comboBox1.DisplayMember = "Name";
-
-                foreach (var item in Files)
-                {
-                    string fileName = item.FullName;
-                    string text = File.ReadAllText(fileName);
-                    text = text.Replace("/min", "/B");
-                    //text = text.Replace("\ncall service", "\n::call service");      //disabling autoUpd
-                    File.WriteAllText(fileName, text);
-                }
-
+                string fileName = item.FullName;
+                string text = File.ReadAllText(fileName);
+                text = text.Replace("/min", "/B");
+                text = text.Replace("\ncall service.bat check_updates", "\n::call service.bat check_updates");      //disabling autoUpd from flowseal scripts
+                File.WriteAllText(fileName, text);
             }
+
         }
+
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -76,7 +89,8 @@ namespace ZapretUI
         {
             string script, scriptPath;
             script = comboBox1.Text;
-            scriptPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + script;
+
+            scriptPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/zapret-discord-youtube-" + localVersionZapret + "/" + script;
             MessageBox.Show(scriptPath);
             ProcessStartInfo zapretProcessInfo = new ProcessStartInfo(scriptPath)
             {
@@ -263,6 +277,24 @@ namespace ZapretUI
             buttonStart.Visible = true;
             buttonReboot.Enabled = false;
             buttonReboot.Visible = false;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string GIT_VersionZapret;
+            using (var wc = new System.Net.WebClient())
+                GIT_VersionZapret = wc.DownloadString("https://raw.githubusercontent.com/Flowseal/zapret-discord-youtube/main/.service/version.txt");
+
+            MessageBox.Show("Git_Zapret:" + GIT_VersionZapret);
+        }
+
+
+        public void DownloadFile(string url, string destinationPath)
+        {
+            using (WebClient client = new WebClient())
+            {
+                client.DownloadFile(url, destinationPath);
+            }
         }
     }
 }
