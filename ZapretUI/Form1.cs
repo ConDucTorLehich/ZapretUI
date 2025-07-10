@@ -14,34 +14,50 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
+
 namespace ZapretUI
 {
     public partial class Form1 : Form
     {
+        bool forceExit = false;
         public Form1()
         {
-            InitializeComponent();
-            Rectangle workingArea = Screen.GetWorkingArea(this);
-            this.Location = new Point(workingArea.Right - Size.Width,
-                                      workingArea.Bottom - Size.Height);
-            notifyIcon1.Visible = false;
 
             string dirPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//@"C:\Users\fedko\OneDrive\������� ����\172b";
-            
+
             DirectoryInfo d = new DirectoryInfo(dirPath);//Assuming Test is your Folder
             FileInfo[] Files = d.GetFiles("g*.bat"); //Getting Text files
-            comboBox1.DataSource = Files;
-            comboBox1.DisplayMember = "Name";
-
-            foreach (var item in Files)
+            bool check = Files.Length > 0;
+            if (!check)
             {
-                string fileName = item.FullName;
-                string text = File.ReadAllText(fileName);
-                text = text.Replace("/min", "/B");
-                text = text.Replace("\ncall service", "\n::call service");      //disabling autoUpd
-                File.WriteAllText(fileName, text);
+                forceExit = true;
+                MessageBox.Show("Файл .exe должен находиться с файлами запрета!");
+                this.Close();
             }
+            if (!forceExit)
+            {
 
+
+                InitializeComponent();
+
+                Rectangle workingArea = Screen.GetWorkingArea(this);
+                this.Location = new Point(workingArea.Right - Size.Width,
+                                          workingArea.Bottom - Size.Height);
+                notifyIcon1.Visible = false;
+
+                comboBox1.DataSource = Files;
+                comboBox1.DisplayMember = "Name";
+
+                foreach (var item in Files)
+                {
+                    string fileName = item.FullName;
+                    string text = File.ReadAllText(fileName);
+                    text = text.Replace("/min", "/B");
+                    //text = text.Replace("\ncall service", "\n::call service");      //disabling autoUpd
+                    File.WriteAllText(fileName, text);
+                }
+
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -54,7 +70,6 @@ namespace ZapretUI
             labelStatus.Text = labelStatus.Text + "                  Starting...";
             await startScript();
             buttonStart.Enabled = false;
-            // MessageBox.Show("ABOAB satrted");
         }
 
         private async Task startScript()
@@ -67,22 +82,18 @@ namespace ZapretUI
             {
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
-                Verb = "runas"
+                Verb = "runas",
             };
 
-            Process.Start(zapretProcessInfo);
-            //Thread.Sleep(3000);
-
-            // Process.Start(@"C:\Users\fedko\OneDrive\������� ����\172b\" + script);
+            Process start = new Process();
+            start.StartInfo = zapretProcessInfo;
+            start.Start();
 
             await CrossOrTick();
             labelStatus.Text = "Status: Running!";
-            //notifyIcon1.Icon = new Icon(this.GetType(), "runningICO");
-            notifyIcon1.Icon = Properties.Resources.runningICO;
-            Form1.ActiveForm.Icon = Properties.Resources.runningICO;
         }
 
-        /* �������� �������� ����������*/
+
         public static Task<bool> CheckForInternetConnection(int timeoutMs, string url)
         {
             return Task<bool>.Run(() =>
@@ -104,17 +115,15 @@ namespace ZapretUI
 
         public async Task CrossOrTick()
         {
-            // �������� ����������� ��������
             bool statusYouTube, statusDiscord;
             string urlYouTube = "https://www.youtube.com/";
             string urlDiscord = "https://dis.gd";
             statusYouTube = await CheckForInternetConnection(5000, urlYouTube);
             statusDiscord = await CheckForInternetConnection(5000, urlDiscord);
 
-            // ��������� ������� � ���������
             if (statusYouTube) { galkaYoutube.Visible = true; crossYoutube.Visible = false; } else { crossYoutube.Visible = true; galkaYoutube.Visible = false; }
             if (statusDiscord) { galkaDiscord.Visible = true; crossDiscord.Visible = false; } else { crossDiscord.Visible = true; galkaDiscord.Visible = false; }
-            //if (statusDiscord&&statusYouTube) { return true; } else { return false; }
+
         }
 
         private async void buttonUpd_Click(object sender, EventArgs e)
@@ -151,10 +160,7 @@ namespace ZapretUI
                 CreateNoWindow = true,
 
             };
-            notifyIcon1.Icon = Properties.Resources.stoppedICO;
-            Form1.ActiveForm.Icon = Properties.Resources.stoppedICO;
-            
-            // MessageBox.Show("ABOAB " + stopScriptInfo.Arguments);
+
 
             using (Process process = new Process { StartInfo = stopScriptInfo })
             {
@@ -181,17 +187,21 @@ namespace ZapretUI
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (MessageBox.Show("Вы собираетесь закрыть приложение?\n(Все скрипты и обходы будут завершены)", "РКН не сосать?", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.No)
+            if (!forceExit)
             {
-                e.Cancel = true;
+                if (MessageBox.Show("Вы собираетесь закрыть приложение?\n(Все скрипты и обходы будут завершены)", "РКН не сосать?", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.No)
+                {
+                    e.Cancel = true;
+                }
+                else
+                    e.Cancel = false;
             }
-            else
-                e.Cancel = false;
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            ScriptStop();
+            if (!forceExit) ScriptStop();
+
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -239,7 +249,6 @@ namespace ZapretUI
                 buttonStart.Visible = false;
                 buttonReboot.Enabled = true;
                 buttonReboot.Visible = true;
-                //MessageBox.Show("123");
             }
 
         }
@@ -249,7 +258,7 @@ namespace ZapretUI
             labelStatus.Text += "                 Rebooting...";
             string output = await ScriptStop();
             await startScript();
-            // await CrossOrTick();
+
             buttonStart.Enabled = false;
             buttonStart.Visible = true;
             buttonReboot.Enabled = false;
