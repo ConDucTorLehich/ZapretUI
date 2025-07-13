@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Reflection;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace ZapretUI
     public partial class Form1 : Form
     {
         bool forceExit = false;
-        string localVersionUI = "0.0.9";
+        string localVersionUI = "0.1.0";
         string localVersionZapret;
         public Form1()
         {
@@ -404,7 +405,9 @@ namespace ZapretUI
             var selfWithoutExt = Path.Combine(Path.GetDirectoryName(workDir),
                                         Path.GetFileNameWithoutExtension(workDir));
             //File.WriteAllBytes(selfWithoutExt + "Update.exe", buffer);
-            DownloadFile("https://github.com/ConDucTorLehich/ZapretUI/releases/download/0.0.9/ZapretUI.exe", workDir);
+            string loadVer = GetLastVersion(2);
+            string url = "https://github.com/ConDucTorLehich/ZapretUI/releases/download/" + loadVer + "/ZapretUI.exe";
+            DownloadFile("", workDir);
             using (var batFile = new StreamWriter(File.Create(selfWithoutExt + "Update.bat")))
             {
                 batFile.WriteLine("@ECHO OFF");
@@ -421,6 +424,8 @@ namespace ZapretUI
             startInfo.WorkingDirectory = Path.GetDirectoryName(workDir);
             Process.Start(startInfo);
 
+            File.Delete(selfWithoutExt + "Update.exe");
+            
             Environment.Exit(0);
         }
     }
