@@ -129,12 +129,12 @@ namespace ZapretUI
         private Button buttonStart;
         private Button buttonStop;
         private Button buttonReboot;
-        private Label label2;
+        private Label labelVersion;
         private Button buttonUpd;
         private Label labelStatus;
         private PictureBox pictureBox1;
         private PictureBox pictureBox2;
-        private Button button1;
+        private Button buttonCheckUpd;
         private PictureBox galkaDiscord;
         private PictureBox galkaYoutube;
         private PictureBox crossYoutube;
@@ -159,9 +159,9 @@ namespace ZapretUI
             this.buttonStart = new System.Windows.Forms.Button();
             this.buttonStop = new System.Windows.Forms.Button();
             this.buttonReboot = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
+            this.labelVersion = new System.Windows.Forms.Label();
             this.labelStatus = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.buttonCheckUpd = new System.Windows.Forms.Button();
             this.galkaYoutube = new System.Windows.Forms.PictureBox();
             this.galkaDiscord = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -169,6 +169,7 @@ namespace ZapretUI
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.crossYoutube = new System.Windows.Forms.PictureBox();
             this.crossDiscord = new System.Windows.Forms.PictureBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.galkaYoutube)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.galkaDiscord)).BeginInit();
@@ -262,14 +263,16 @@ namespace ZapretUI
             this.buttonReboot.Visible = false;
             this.buttonReboot.Click += new System.EventHandler(this.buttonReboot_Click);
             // 
-            // label2
+            // labelVersion
             // 
-            this.label2.Location = new System.Drawing.Point(-1, 492);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(286, 30);
-            this.label2.TabIndex = 5;
-            this.label2.Text = "Upd Available!(or not)                 ver. scr: 1.7.2b/ui: 0.9.9";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.labelVersion.BackColor = System.Drawing.Color.Azure;
+            this.labelVersion.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.labelVersion.Location = new System.Drawing.Point(-2, 480);
+            this.labelVersion.Name = "labelVersion";
+            this.labelVersion.Size = new System.Drawing.Size(282, 38);
+            this.labelVersion.TabIndex = 5;
+            this.labelVersion.Text = " ver.";
+            this.labelVersion.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // labelStatus
             // 
@@ -280,15 +283,18 @@ namespace ZapretUI
             this.labelStatus.Text = "Status: Stopped";
             this.labelStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // button1
+            // buttonCheckUpd
             // 
-            this.button1.Location = new System.Drawing.Point(12, 466);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(260, 23);
-            this.button1.TabIndex = 10;
-            this.button1.Text = "Проверка обновлений (не реализовано)";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.buttonCheckUpd.BackColor = System.Drawing.Color.Azure;
+            this.buttonCheckUpd.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.buttonCheckUpd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonCheckUpd.Location = new System.Drawing.Point(-2, 480);
+            this.buttonCheckUpd.Name = "buttonCheckUpd";
+            this.buttonCheckUpd.Size = new System.Drawing.Size(96, 38);
+            this.buttonCheckUpd.TabIndex = 10;
+            this.buttonCheckUpd.Text = "Проверка обновлений";
+            this.buttonCheckUpd.UseVisualStyleBackColor = false;
+            this.buttonCheckUpd.Click += new System.EventHandler(this.buttonCheckUpd_Click);
             // 
             // galkaYoutube
             // 
@@ -372,15 +378,27 @@ namespace ZapretUI
             this.crossDiscord.TabStop = false;
             this.crossDiscord.Visible = false;
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(197, 437);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 15;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Visible = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(278, 517);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.galkaYoutube);
             this.Controls.Add(this.galkaDiscord);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.buttonCheckUpd);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.buttonUpd);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.labelVersion);
             this.Controls.Add(this.buttonStop);
             this.Controls.Add(this.buttonStart);
             this.Controls.Add(this.comboBox1);
@@ -416,6 +434,7 @@ namespace ZapretUI
         private ContextMenuStrip contextMenuStrip1;
         private ToolStripMenuItem показатьToolStripMenuItem;
         private ToolStripMenuItem выходToolStripMenuItem;
+        private Button button1;
     }
 }
 

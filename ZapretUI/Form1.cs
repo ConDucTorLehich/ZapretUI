@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Security.Policy;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -25,27 +26,32 @@ namespace ZapretUI
     {
         bool forceExit = false;
         string localVersionUI = "0.9.9";
-        string localVersionZapret = "1.8.2";
+        string localVersionZapret;
         public Form1()
         {
 
             InitializeComponent();
+            localVersionZapret = GetInstalledVersion();
 
 
-            string dirWorkPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);//@"C:\Users\fedko\OneDrive\������� ����\172b";
+            string dirWorkPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             DirectoryInfo d = new DirectoryInfo(dirWorkPath);//Assuming Test is your Folder
 
             //Проверка установленных скриптов запрета
-            DirectoryInfo[] directories = d.GetDirectories("zapret-discord-youtube-*");
-            if (directories.Length == 0)
+            //DirectoryInfo[] directories = d.GetDirectories("zapret-discord-youtube-*");
+
+            if (localVersionZapret == "error")
             {
-                string zipName = dirWorkPath + "/zapret-discord-youtube-" + localVersionZapret + ".zip";
-                string downloadLink = "https://github.com/Flowseal/zapret-discord-youtube/releases/download/" + localVersionZapret + "/zapret-discord-youtube-" + localVersionZapret + ".zip";
-                DownloadFile(downloadLink, zipName);
-                MessageBox.Show("FlowSeal Zapret успешно скачан!");
-                ZipFile.ExtractToDirectory(zipName, dirWorkPath + "/zapret-discord-youtube-" + localVersionZapret);
-                MessageBox.Show("Запускаемся!");
-                File.Delete(zipName);
+                if (MessageBox.Show("Отсутствуют файлы Zapret, нажмите \"Да\" и они будут скачаны.\nНажмите нет, и по желанию сделайте это сами", "Загрузка Zapret", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.No)
+                {
+                    forceExit = true;
+                    System.Environment.Exit(1);
+                }
+                else
+                {
+                    loadLastZapret(dirWorkPath, GetLastVersion(1));
+                    localVersionZapret = GetInstalledVersion();
+                }
             }
 
             string dirZapret = dirWorkPath + "/zapret-discord-youtube-" + localVersionZapret;
@@ -69,7 +75,7 @@ namespace ZapretUI
                 text = text.Replace("\ncall service.bat check_updates", "\n::call service.bat check_updates");      //disabling autoUpd from flowseal scripts
                 File.WriteAllText(fileName, text);
             }
-
+            SetLabelVersion();
         }
 
 
@@ -81,7 +87,9 @@ namespace ZapretUI
         private async void buttonStart_Click(object sender, EventArgs e)
         {
             labelStatus.Text = labelStatus.Text + "                  Starting...";
+            buttons(false);
             await startScript();
+            buttons(true);
             buttonStart.Enabled = false;
         }
 
@@ -91,7 +99,7 @@ namespace ZapretUI
             script = comboBox1.Text;
 
             scriptPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/zapret-discord-youtube-" + localVersionZapret + "/" + script;
-            MessageBox.Show(scriptPath);
+            //MessageBox.Show(scriptPath);
             ProcessStartInfo zapretProcessInfo = new ProcessStartInfo(scriptPath)
             {
                 CreateNoWindow = true,
@@ -110,6 +118,7 @@ namespace ZapretUI
 
         public static Task<bool> CheckForInternetConnection(int timeoutMs, string url)
         {
+
             return Task<bool>.Run(() =>
             {
                 try
@@ -132,8 +141,11 @@ namespace ZapretUI
             bool statusYouTube, statusDiscord;
             string urlYouTube = "https://www.youtube.com/";
             string urlDiscord = "https://dis.gd";
-            statusYouTube = await CheckForInternetConnection(5000, urlYouTube);
-            statusDiscord = await CheckForInternetConnection(5000, urlDiscord);
+            statusYouTube = await CheckForInternetConnection(6000, urlYouTube);
+            statusDiscord = await CheckForInternetConnection(6000, urlDiscord);
+
+            //MessageBox.Show("YouTube" + statusYouTube);
+            //MessageBox.Show("Discord" + statusDiscord);
 
             if (statusYouTube) { galkaYoutube.Visible = true; crossYoutube.Visible = false; } else { crossYoutube.Visible = true; galkaYoutube.Visible = false; }
             if (statusDiscord) { galkaDiscord.Visible = true; crossDiscord.Visible = false; } else { crossDiscord.Visible = true; galkaDiscord.Visible = false; }
@@ -143,6 +155,7 @@ namespace ZapretUI
         private async void buttonUpd_Click(object sender, EventArgs e)
         {
             bool runnig = false;
+            buttons(false);
             if (labelStatus.Text == "Status: Running!") { runnig = true; }
             labelStatus.Text = labelStatus.Text + "                          Updating...";
             await CrossOrTick();
@@ -154,6 +167,16 @@ namespace ZapretUI
             {
                 labelStatus.Text = "Status: Stopped";
             }
+            buttons(true);
+        }
+
+        private void buttons(bool stat)
+        {
+            buttonStart.Enabled = stat;
+            buttonCheckUpd.Enabled = stat;
+            buttonUpd.Enabled = stat;
+            buttonStop.Enabled = stat;
+            comboBox1.Enabled = stat;
         }
 
         public async Task<string> ScriptStop()
@@ -269,9 +292,12 @@ namespace ZapretUI
 
         private async void buttonReboot_Click(object sender, EventArgs e)
         {
+            buttons(false);
             labelStatus.Text += "                 Rebooting...";
             string output = await ScriptStop();
             await startScript();
+
+            buttons(true);
 
             buttonStart.Enabled = false;
             buttonStart.Visible = true;
@@ -279,15 +305,71 @@ namespace ZapretUI
             buttonReboot.Visible = false;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void buttonCheckUpd_Click(object sender, EventArgs e)
         {
-            string GIT_VersionZapret;
-            using (var wc = new System.Net.WebClient())
-                GIT_VersionZapret = wc.DownloadString("https://raw.githubusercontent.com/Flowseal/zapret-discord-youtube/main/.service/version.txt");
+            string GitZapret, GitUI;
+            GitZapret = GetLastVersion(1);
+            GitUI = GetLastVersion(2);
 
-            MessageBox.Show("Git_Zapret:" + GIT_VersionZapret);
+            if (GitZapret != localVersionZapret)
+            {
+                if (MessageBox.Show("Вышел патч на скрипты Zapret\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
+                {
+                    string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    DirectoryInfo zapretDir = new DirectoryInfo(workDir + "/zapret-discord-youtube-" + localVersionZapret);
+                    zapretDir.Delete(true);
+                    loadLastZapret(workDir, GitZapret);
+                    forceExit = true;
+                    Application.Restart();
+                    Environment.Exit(0);
+                }
+
+            }
+            else
+            {
+                MessageBox.Show("Обновы нет.\nGit_Zapret: " + GitZapret + "\nGit_UI: " + GitUI);
+            }
         }
 
+
+        public string GetInstalledVersion()
+        {
+            string word = "set \"LOCAL_VERSION=", result;
+            try
+            {
+                string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                DirectoryInfo d = new DirectoryInfo(workDir);
+                DirectoryInfo[] directories = d.GetDirectories("zapret-discord-youtube-*");
+                string zapretDir = directories[0].FullName;
+
+                string text = File.ReadAllText(zapretDir + "/service.bat");
+                int startIndex = text.IndexOf(word) + word.Length;
+                int endIndex = text.IndexOf('"', startIndex);
+                result = text.Substring(startIndex, endIndex - startIndex).Trim();
+
+                return result;
+            }
+            catch
+            {
+                result = "error";
+                return result;
+            }
+
+        }
+
+        private string GetLastVersion(int type)
+        {
+            string GIT_Version;
+            using (var wc = new System.Net.WebClient())
+            {
+                switch (type)
+                {
+                    case 1: return GIT_Version = wc.DownloadString("https://raw.githubusercontent.com/Flowseal/zapret-discord-youtube/main/.service/version.txt");
+                    case 2: return GIT_Version = wc.DownloadString("https://raw.githubusercontent.com/ConDucTorLehich/ZapretUI/refs/heads/master/.service/versionUI.txt");
+                    default: return GIT_Version = "error";
+                }
+            }
+        }
 
         public void DownloadFile(string url, string destinationPath)
         {
@@ -295,6 +377,27 @@ namespace ZapretUI
             {
                 client.DownloadFile(url, destinationPath);
             }
+        }
+
+        public void loadLastZapret(string dirWorkPath, string lastGIT_Zapret)
+        {
+            string zipName = dirWorkPath + "/zapret-discord-youtube-" + lastGIT_Zapret + ".zip";
+            string downloadLink = "https://github.com/Flowseal/zapret-discord-youtube/releases/download/" + lastGIT_Zapret + "/zapret-discord-youtube-" + lastGIT_Zapret + ".zip";
+            DownloadFile(downloadLink, zipName);
+            ZipFile.ExtractToDirectory(zipName, dirWorkPath + "/zapret-discord-youtube-" + lastGIT_Zapret);
+            MessageBox.Show("Zapret успешно скачан!\nЗапускаемся!");
+            File.Delete(zipName);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(GetInstalledVersion());
+        }
+
+        private void SetLabelVersion()
+        {
+            string toLabel = "Zapret: " + localVersionZapret + "\nApp: " + localVersionUI;
+            labelVersion.Text = toLabel;
         }
     }
 }
