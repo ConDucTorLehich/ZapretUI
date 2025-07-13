@@ -25,7 +25,7 @@ namespace ZapretUI
     public partial class Form1 : Form
     {
         bool forceExit = false;
-        string localVersionUI = "0.9.9";
+        string localVersionUI = "0.0.9";
         string localVersionZapret;
         public Form1()
         {
