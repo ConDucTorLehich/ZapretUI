@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Deployment.Application;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -6,6 +7,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -25,7 +27,6 @@ namespace ZapretUI
 
 
             string dirWorkPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            DirectoryInfo d = new DirectoryInfo(dirWorkPath);//Assuming Test is your Folder
 
             //Проверка установленных скриптов запрета
             //DirectoryInfo[] directories = d.GetDirectories("zapret-discord-youtube-*");
@@ -294,6 +295,7 @@ namespace ZapretUI
         private void buttonCheckUpd_Click(object sender, EventArgs e)
         {
             string GitZapret, GitUI;
+            string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             GitZapret = GetLastVersion(1);
             GitUI = GetLastVersion(2);
 
@@ -301,7 +303,7 @@ namespace ZapretUI
             {
                 if (MessageBox.Show("Вышел патч на скрипты Zapret\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
                 {
-                    string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
                     DirectoryInfo zapretDir = new DirectoryInfo(workDir + "/zapret-discord-youtube-" + localVersionZapret);
                     zapretDir.Delete(true);
                     loadLastZapret(workDir, GitZapret);
@@ -309,6 +311,15 @@ namespace ZapretUI
                     Application.Restart();
                     Environment.Exit(0);
                 }
+
+            }
+            else if (GitUI != localVersionUI)
+            {
+                File.Move("ZapretUI.exe", "ZapretUIUpdate.exe");
+                UpdateSelf();
+                //DownloadFile("https://github.com/ConDucTorLehich/ZapretUI/releases/download/0.0.9/ZapretUI.exe", workDir + "/ZapretUI.exe");
+
+               // System.IO.File.Delete(workDir + "/ZapretUI-Old.exe");
 
             }
             else
@@ -351,7 +362,7 @@ namespace ZapretUI
                 switch (type)
                 {
                     case 1: return GIT_Version = wc.DownloadString("https://raw.githubusercontent.com/Flowseal/zapret-discord-youtube/main/.service/version.txt");
-                    case 2: return GIT_Version = wc.DownloadString("https://raw.githubusercontent.com/ConDucTorLehich/ZapretUI/refs/heads/master/.service/versionUI.txt");
+                    case 2: return GIT_Version = wc.DownloadString("https://raw.githubusercontent.com/ConDucTorLehich/ZapretUI/refs/heads/master/ZapretUI/versionUI.txt");
                     default: return GIT_Version = "error";
                 }
             }
@@ -385,6 +396,32 @@ namespace ZapretUI
             string toLabel = "Zapret: " + localVersionZapret + "\nApp: " + localVersionUI;
             labelVersion.Text = toLabel;
         }
+
+        public void UpdateSelf()
+        {
+            var workDir = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var selfFileName = Path.GetFileName(workDir);
+            var selfWithoutExt = Path.Combine(Path.GetDirectoryName(workDir),
+                                        Path.GetFileNameWithoutExtension(workDir));
+            //File.WriteAllBytes(selfWithoutExt + "Update.exe", buffer);
+            DownloadFile("https://github.com/ConDucTorLehich/ZapretUI/releases/download/0.0.9/ZapretUI.exe", workDir);
+            using (var batFile = new StreamWriter(File.Create(selfWithoutExt + "Update.bat")))
+            {
+                batFile.WriteLine("@ECHO OFF");
+                batFile.WriteLine("TIMEOUT /t 1 /nobreak > NUL");
+                batFile.WriteLine("TASKKILL /IM \"{0}\" > NUL", selfFileName);
+                batFile.WriteLine("MOVE \"{0}\" \"{1}\"", selfWithoutExt + "Update.exe", workDir);
+                batFile.WriteLine("DEL \"%~f0\" & START \"\" /B \"{0}\"", workDir);
+            }
+
+            ProcessStartInfo startInfo = new ProcessStartInfo(selfWithoutExt + "Update.bat");
+            // Hide the terminal window
+            startInfo.CreateNoWindow = true;
+            startInfo.UseShellExecute = false;
+            startInfo.WorkingDirectory = Path.GetDirectoryName(workDir);
+            Process.Start(startInfo);
+
+            Environment.Exit(0);
+        }
     }
 }
-
