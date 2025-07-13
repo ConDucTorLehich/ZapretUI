@@ -57,15 +57,15 @@ namespace ZapretUI
             string dirZapret = dirWorkPath + "/zapret-discord-youtube-" + localVersionZapret;
             DirectoryInfo zapretDirInfo = new DirectoryInfo(dirZapret);
             FileInfo[] Files = zapretDirInfo.GetFiles("g*.bat"); //Getting Text files
-
+            comboBox1.DataSource = Files;
+            comboBox1.DisplayMember = "Name";
 
             Rectangle workingArea = Screen.GetWorkingArea(this);
             this.Location = new Point(workingArea.Right - Size.Width,
                                       workingArea.Bottom - Size.Height);
             notifyIcon1.Visible = false;
 
-            comboBox1.DataSource = Files;
-            comboBox1.DisplayMember = "Name";
+
 
             foreach (var item in Files)
             {
@@ -220,6 +220,8 @@ namespace ZapretUI
             //await CrossOrTick();
             labelStatus.Text = "Status: Stopped";
             buttonStart.Enabled = true;
+            buttonStart.Visible = true;
+            buttonReboot.Visible = false;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -242,13 +244,10 @@ namespace ZapretUI
         }
 
         private void Form1_Resize(object sender, EventArgs e)
-        {
-            // проверяем наше окно, и если оно было свернуто, делаем событие        
+        {      
             if (WindowState == FormWindowState.Minimized)
             {
-                // прячем наше окно из панели
                 this.ShowInTaskbar = false;
-                // делаем нашу иконку в трее активной
                 notifyIcon1.Visible = true;
             }
         }
@@ -265,11 +264,8 @@ namespace ZapretUI
 
         private void showMainForm()
         {
-            // делаем нашу иконку скрытой
             notifyIcon1.Visible = false;
-            // возвращаем отображение окна в панели
             this.ShowInTaskbar = true;
-            //разворачиваем окно
             WindowState = FormWindowState.Normal;
         }
 
@@ -384,7 +380,7 @@ namespace ZapretUI
             string zipName = dirWorkPath + "/zapret-discord-youtube-" + lastGIT_Zapret + ".zip";
             string downloadLink = "https://github.com/Flowseal/zapret-discord-youtube/releases/download/" + lastGIT_Zapret + "/zapret-discord-youtube-" + lastGIT_Zapret + ".zip";
             DownloadFile(downloadLink, zipName);
-            ZipFile.ExtractToDirectory(zipName, dirWorkPath + "/zapret-discord-youtube-" + lastGIT_Zapret);
+            ZipFile.ExtractToDirectory(zipName, dirWorkPath + "/zapret-discord-youtube-" + lastGIT_Zapret,Encoding.GetEncoding(866));
             MessageBox.Show("Zapret успешно скачан!\nЗапускаемся!");
             File.Delete(zipName);
         }
