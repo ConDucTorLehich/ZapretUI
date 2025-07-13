@@ -319,7 +319,7 @@ namespace ZapretUI
                 UpdateSelf();
                 //DownloadFile("https://github.com/ConDucTorLehich/ZapretUI/releases/download/0.0.9/ZapretUI.exe", workDir + "/ZapretUI.exe");
 
-               // System.IO.File.Delete(workDir + "/ZapretUI-Old.exe");
+                // System.IO.File.Delete(workDir + "/ZapretUI-Old.exe");
 
             }
             else
@@ -409,9 +409,9 @@ namespace ZapretUI
             {
                 batFile.WriteLine("@ECHO OFF");
                 batFile.WriteLine("TIMEOUT /t 1 /nobreak > NUL");
-                batFile.WriteLine("TASKKILL /IM \"{0}\" > NUL", selfFileName);
-                batFile.WriteLine("MOVE \"{0}\" \"{1}\"", selfWithoutExt + "Update.exe", workDir);
-                batFile.WriteLine("DEL \"%~f0\" & START \"\" /B \"{0}\"", workDir);
+                batFile.WriteLine("TASKKILL /IM \"{0}\" > NUL", selfWithoutExt + "Update.exe");
+                //batFile.WriteLine("MOVE \"{0}\" \"{1}\"", selfWithoutExt + "Update.exe", workDir);
+                batFile.WriteLine("DEL \"{0}\" & START \"\" /B \"{1}\"", selfWithoutExt + "Update.exe", workDir);
             }
 
             ProcessStartInfo startInfo = new ProcessStartInfo(selfWithoutExt + "Update.bat");
