@@ -1,23 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Security.Policy;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 
 namespace ZapretUI
@@ -244,7 +234,7 @@ namespace ZapretUI
         }
 
         private void Form1_Resize(object sender, EventArgs e)
-        {      
+        {
             if (WindowState == FormWindowState.Minimized)
             {
                 this.ShowInTaskbar = false;
@@ -380,7 +370,7 @@ namespace ZapretUI
             string zipName = dirWorkPath + "/zapret-discord-youtube-" + lastGIT_Zapret + ".zip";
             string downloadLink = "https://github.com/Flowseal/zapret-discord-youtube/releases/download/" + lastGIT_Zapret + "/zapret-discord-youtube-" + lastGIT_Zapret + ".zip";
             DownloadFile(downloadLink, zipName);
-            ZipFile.ExtractToDirectory(zipName, dirWorkPath + "/zapret-discord-youtube-" + lastGIT_Zapret,Encoding.GetEncoding(866));
+            ZipFile.ExtractToDirectory(zipName, dirWorkPath + "/zapret-discord-youtube-" + lastGIT_Zapret, Encoding.GetEncoding(866));
             MessageBox.Show("Zapret успешно скачан!\nЗапускаемся!");
             File.Delete(zipName);
         }
