@@ -170,7 +170,6 @@ namespace ZapretUI
             this.crossYoutube = new System.Windows.Forms.PictureBox();
             this.crossDiscord = new System.Windows.Forms.PictureBox();
             this.button1 = new System.Windows.Forms.Button();
-            this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.galkaYoutube)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.galkaDiscord)).BeginInit();
@@ -178,7 +177,6 @@ namespace ZapretUI
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.crossYoutube)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.crossDiscord)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             this.SuspendLayout();
             // 
             // notifyIcon1
@@ -392,21 +390,9 @@ namespace ZapretUI
             this.button1.Visible = false;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // pictureBox3
-            // 
-            this.pictureBox3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.pictureBox3.Image = global::ZapretUI.Properties.Resources.galka;
-            this.pictureBox3.Location = new System.Drawing.Point(111, 210);
-            this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(60, 56);
-            this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox3.TabIndex = 16;
-            this.pictureBox3.TabStop = false;
-            // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(278, 517);
-            this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.galkaYoutube);
             this.Controls.Add(this.galkaDiscord);
@@ -440,7 +426,6 @@ namespace ZapretUI
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.crossYoutube)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.crossDiscord)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -451,7 +436,6 @@ namespace ZapretUI
         private ToolStripMenuItem показатьToolStripMenuItem;
         private ToolStripMenuItem выходToolStripMenuItem;
         private Button button1;
-        private PictureBox pictureBox3;
     }
 }
 
