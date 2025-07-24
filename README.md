@@ -35,7 +35,7 @@ ZapretUI - это графическая оболочка для скрипто�
 
 | Главное окно | Статус работы |
 |--------------|---------------|
-| ![Главное окно](main.png) | ![Работа приложения](GalkaSkrin.png) |
+| ![Главное окно]([main.png](https://github.com/ConDucTorLehich/ZapretUI/blob/master/ZapretUI/main.png)) | ![Работа приложения]([GalkaSkrin.png](https://github.com/ConDucTorLehich/ZapretUI/blob/master/ZapretUI/GalkaSkrin.png)) |
 
 ## Благодарности
 
