@@ -1,216 +1,263 @@
 ﻿using System;
-using System.Deployment.Application;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
-using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-
 namespace ZapretUI
 {
     public partial class Form1 : Form
     {
-        bool forceExit = false;
-        string localVersionUI = "0.1.1";
-        string localVersionZapret;
+        private bool _forceExit = false;
+        private const string LocalVersionUI = "0.1.1";
+        private string _localVersionZapret;
+        private const string ZapretBaseName = "zapret-discord-youtube-";
+        private const string GitHubZapretUrl = "https://github.com/Flowseal/zapret-discord-youtube";
+        private const string GitHubUIUrl = "https://github.com/ConDucTorLehich/ZapretUI";
+
         public Form1()
         {
-
             InitializeComponent();
-            localVersionZapret = GetInstalledVersion();
+            _localVersionZapret = GetInstalledVersion();
 
+            string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            string dirWorkPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-            //Проверка установленных скриптов запрета
-            //DirectoryInfo[] directories = d.GetDirectories("zapret-discord-youtube-*");
-
-            if (localVersionZapret == "error")
+            if (_localVersionZapret == "error")
             {
-                if (MessageBox.Show("Отсутствуют файлы Zapret, нажмите \"Да\" и они будут скачаны.\nНажмите нет, и по желанию сделайте это сами", "Загрузка Zapret", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.No)
+                if (MessageBox.Show(
+                    "Отсутствуют файлы Zapret, нажмите \"Да\" и они будут скачаны.\nНажмите \"Нет\", и по желанию сделайте это сами",
+                    "Загрузка Zapret",
+                    MessageBoxButtons.YesNo) == DialogResult.No)
                 {
-                    forceExit = true;
-                    System.Environment.Exit(1);
+                    _forceExit = true;
+                    Environment.Exit(1);
                 }
                 else
                 {
-                    loadLastZapret(dirWorkPath, GetLastVersion(1));
-                    localVersionZapret = GetInstalledVersion();
+                    string lastVersion = GetLastVersion(1);
+                    LoadLastZapret(workDir, lastVersion);
+                    _localVersionZapret = GetInstalledVersion();
                 }
             }
 
-            string dirZapret = dirWorkPath + "/zapret-discord-youtube-" + localVersionZapret;
-            DirectoryInfo zapretDirInfo = new DirectoryInfo(dirZapret);
-            FileInfo[] Files = zapretDirInfo.GetFiles("g*.bat"); //Getting Text files
-            comboBox1.DataSource = Files;
-            comboBox1.DisplayMember = "Name";
+            string zapretDirPath = Path.Combine(workDir, $"{ZapretBaseName}{_localVersionZapret}");
+            var zapretDirInfo = new DirectoryInfo(zapretDirPath);
 
-            Rectangle workingArea = Screen.GetWorkingArea(this);
-            this.Location = new Point(workingArea.Right - Size.Width,
-                                      workingArea.Bottom - Size.Height);
-            notifyIcon1.Visible = false;
+            CheckAndClearUpdates(zapretDirInfo);
 
+            // Initialize scripts combo box
+            InitializeScriptsComboBox(zapretDirInfo);
 
+            // Position window in bottom-right corner
+            PositionWindow();
 
-            foreach (var item in Files)
-            {
-                string fileName = item.FullName;
-                string text = File.ReadAllText(fileName);
-                text = text.Replace("/min", "/B");
-                text = text.Replace("\ncall service.bat check_updates", "\n::call service.bat check_updates");      //disabling autoUpd from flowseal scripts
-                File.WriteAllText(fileName, text);
-            }
+            // Modify scripts
+            ModifyScripts(zapretDirInfo);
+
             SetLabelVersion();
         }
 
-
-        private void Form1_Load(object sender, EventArgs e)
+        private void InitializeScriptsComboBox(DirectoryInfo zapretDirInfo)
         {
+            FileInfo[] scriptFiles = zapretDirInfo.GetFiles("g*.bat");
+            comboBox1.DataSource = scriptFiles;
+            comboBox1.DisplayMember = "Name";
+        }
 
+        private void PositionWindow()
+        {
+            Rectangle workingArea = Screen.GetWorkingArea(this);
+            this.Location = new Point(
+                workingArea.Right - Size.Width,
+                workingArea.Bottom - Size.Height);
+            notifyIcon1.Visible = false;
+        }
+
+        private void ModifyScripts(DirectoryInfo zapretDirInfo)
+        {
+            foreach (var file in zapretDirInfo.GetFiles("g*.bat"))
+            {
+                string text = File.ReadAllText(file.FullName);
+                text = text
+                    .Replace("/min", "/B")
+                    .Replace("\ncall service.bat check_updates", "\n::call service.bat check_updates");
+                File.WriteAllText(file.FullName, text);
+            }
+        }
+
+        private void CheckAndClearUpdates(DirectoryInfo zapretDirInfo)
+        {
+            // Use single loop for both file types
+            foreach (var file in zapretDirInfo.GetFiles())
+            {
+                if (file.Name == "ZapretUIUpdate.exe" || file.Name == "ZapretUIUpdate.bat")
+                {
+                    file.Delete();
+                }
+            }
         }
 
         private async void buttonStart_Click(object sender, EventArgs e)
         {
-            labelStatus.Text = labelStatus.Text + "                  Starting...";
-            buttons(false);
-            await startScript();
-            buttons(true);
+            UpdateStatus("Starting...");
+            SetButtonsEnabled(false);
+            await StartScript();
+            SetButtonsEnabled(true);
             buttonStart.Enabled = false;
         }
 
-        private async Task startScript()
+        private async Task StartScript()
         {
-            string script, scriptPath;
-            script = comboBox1.Text;
+            string scriptPath = Path.Combine(
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                $"{ZapretBaseName}{_localVersionZapret}",
+                comboBox1.Text);
 
-            scriptPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/zapret-discord-youtube-" + localVersionZapret + "/" + script;
-            //MessageBox.Show(scriptPath);
-            ProcessStartInfo zapretProcessInfo = new ProcessStartInfo(scriptPath)
+            var startInfo = new ProcessStartInfo(scriptPath)
             {
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
-                Verb = "runas",
+                Verb = "runas"
             };
 
-            Process start = new Process();
-            start.StartInfo = zapretProcessInfo;
-            start.Start();
-
-            await CrossOrTick();
-            labelStatus.Text = "Status: Running!";
-        }
-
-
-        public static Task<bool> CheckForInternetConnection(int timeoutMs, string url)
-        {
-
-            return Task<bool>.Run(() =>
+            using (var process = new Process { StartInfo = startInfo })
             {
-                try
-                {
-                    var request = (HttpWebRequest)WebRequest.Create(url);
-                    request.KeepAlive = false;
-                    request.Timeout = timeoutMs;
-                    using (var response = (HttpWebResponse)request.GetResponse())
-                        return true;
-                }
-                catch
-                {
-                    return false;
-                }
-            });
+                process.Start();
+                await CrossOrTick();
+                UpdateStatus("Running!");
+            }
         }
 
         public async Task CrossOrTick()
         {
-            bool statusYouTube, statusDiscord;
-            string urlYouTube = "https://www.youtube.com/";
-            string urlDiscord = "https://dis.gd";
-            statusYouTube = await CheckForInternetConnection(6000, urlYouTube);
-            statusDiscord = await CheckForInternetConnection(6000, urlDiscord);
+            const string youtubeUrl = "https://www.youtube.com/";
+            const string discordUrl = "https://dis.gd";
+            const int timeoutMs = 3000; // Уменьшил таймаут до 3 секунд
 
-            //MessageBox.Show("YouTube" + statusYouTube);
-            //MessageBox.Show("Discord" + statusDiscord);
+            try
+            {
+                using (var cts = new CancellationTokenSource(timeoutMs))
+                using (var httpClient = new HttpClient() { Timeout = TimeSpan.FromMilliseconds(timeoutMs) })
+                {
+                    // Запускаем обе проверки параллельно
+                    var youtubeTask = CheckConnectionAsync(httpClient, youtubeUrl, cts.Token);
+                    var discordTask = CheckConnectionAsync(httpClient, discordUrl, cts.Token);
 
-            if (statusYouTube) { galkaYoutube.Visible = true; crossYoutube.Visible = false; } else { crossYoutube.Visible = true; galkaYoutube.Visible = false; }
-            if (statusDiscord) { galkaDiscord.Visible = true; crossDiscord.Visible = false; } else { crossDiscord.Visible = true; galkaDiscord.Visible = false; }
+                    await Task.WhenAll(youtubeTask, discordTask);
 
+                    UpdateConnectionStatus(youtubeTask.Result, discordTask.Result);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка при проверке соединения: {ex.Message}");
+                UpdateConnectionStatus(false, false);
+            }
+        }
+
+        private async Task<bool> CheckConnectionAsync(HttpClient client, string url, CancellationToken ct)
+        {
+            try
+            {
+                var response = await client.GetAsync(url, ct);
+                return response.IsSuccessStatusCode;
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.WriteLine($"Проверка {url} отменена по таймауту");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка при проверке {url}: {ex.Message}");
+                return false;
+            }
+        }
+
+        private void UpdateConnectionStatus(bool youtubeStatus, bool discordStatus)
+        {
+            // Используем Invoke для безопасного обновления UI из другого потока
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => UpdateConnectionStatus(youtubeStatus, discordStatus)));
+                return;
+            }
+
+            galkaYoutube.Visible = youtubeStatus;
+            crossYoutube.Visible = !youtubeStatus;
+            galkaDiscord.Visible = discordStatus;
+            crossDiscord.Visible = !discordStatus;
+        }
+
+        private void UpdateStatus(string status)
+        {
+            labelStatus.Text = $"Status: {status}";
         }
 
         private async void buttonUpd_Click(object sender, EventArgs e)
         {
-            bool runnig = false;
-            buttons(false);
-            if (labelStatus.Text == "Status: Running!") { runnig = true; }
-            labelStatus.Text = labelStatus.Text + "                          Updating...";
+            bool wasRunning = labelStatus.Text == "Status: Running!";
+
+            SetButtonsEnabled(false);
+            UpdateStatus("Updating...");
+
             await CrossOrTick();
-            if (runnig == true)
-            {
-                labelStatus.Text = "Status: Running!";
-            }
-            else
-            {
-                labelStatus.Text = "Status: Stopped";
-            }
-            buttons(true);
+
+            UpdateStatus(wasRunning ? "Running!" : "Stopped");
+            SetButtonsEnabled(true);
         }
 
-        private void buttons(bool stat)
+        private void SetButtonsEnabled(bool enabled)
         {
-            buttonStart.Enabled = stat;
-            buttonCheckUpd.Enabled = stat;
-            buttonUpd.Enabled = stat;
-            buttonStop.Enabled = stat;
-            comboBox1.Enabled = stat;
+            buttonStart.Enabled = enabled;
+            buttonCheckUpd.Enabled = enabled;
+            buttonUpd.Enabled = enabled;
+            buttonStop.Enabled = enabled;
+            comboBox1.Enabled = enabled;
         }
 
-        public async Task<string> ScriptStop()
+        public async Task<string> StopScript()
         {
-            //int i = 0;
-            string command = "chcp 437 && taskkill /f /t /im winws.exe && " +
-                     "net stop \"WinDivert\" && sc delete \"WinDivert\" " +
-                     "&& net stop \"WinDivert14\" && sc delete \"WinDivert14\"";
-            ProcessStartInfo stopScriptInfo = new ProcessStartInfo
+            const string command = "chcp 437 && taskkill /f /t /im winws.exe && " +
+                                 "net stop \"WinDivert\" && sc delete \"WinDivert\" " +
+                                 "&& net stop \"WinDivert14\" && sc delete \"WinDivert14\"";
+
+            var stopScriptInfo = new ProcessStartInfo
             {
                 FileName = "cmd.exe",
                 Arguments = @"/C " + command,
                 Verb = "runas",
                 RedirectStandardOutput = true,
-                RedirectStandardError = false,
-                //RedirectStandardInput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true,
-
             };
 
-
-            using (Process process = new Process { StartInfo = stopScriptInfo })
+            using (var process = new Process { StartInfo = stopScriptInfo })
             {
                 process.Start();
-                string output = process.StandardOutput.ReadToEnd();
-                process.WaitForExit();
-
+                string output = await process.StandardOutput.ReadToEndAsync();
+                await Task.Run(() => process.WaitForExit());
                 return output;
             }
         }
 
         private async void buttonStop_Click(object sender, EventArgs e)
         {
-            string output = await ScriptStop();
-            labelStatus.Text += "                  Stopping...";
-            galkaDiscord.Visible = false;
-            galkaYoutube.Visible = false;
-            crossDiscord.Visible = false;
-            crossYoutube.Visible = false;
-            //await CrossOrTick();
-            labelStatus.Text = "Status: Stopped";
+            await StopScript();
+            UpdateStatus("Stopping...");
+
+            // Reset all connection indicators
+            galkaDiscord.Visible = galkaYoutube.Visible = false;
+            crossDiscord.Visible = crossYoutube.Visible = false;
+
+            UpdateStatus("Stopped");
             buttonStart.Enabled = true;
             buttonStart.Visible = true;
             buttonReboot.Visible = false;
@@ -218,21 +265,19 @@ namespace ZapretUI
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (!forceExit)
+            if (!_forceExit && MessageBox.Show(
+                "Вы собираетесь закрыть приложение?\n(Все скрипты и обходы будут завершены)",
+                "РКН не сосать?",
+                MessageBoxButtons.YesNo) == DialogResult.No)
             {
-                if (MessageBox.Show("Вы собираетесь закрыть приложение?\n(Все скрипты и обходы будут завершены)", "РКН не сосать?", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.No)
-                {
-                    e.Cancel = true;
-                }
-                else
-                    e.Cancel = false;
+                e.Cancel = true;
             }
         }
 
-        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        private async void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (!forceExit) ScriptStop();
-
+            if (!_forceExit)
+                await StopScript();
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -244,27 +289,17 @@ namespace ZapretUI
             }
         }
 
-        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            showMainForm();
-        }
+        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e) => ShowMainForm();
+        private void toolStripMenuItem1_Click(object sender, EventArgs e) => ShowMainForm();
 
-        private void toolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            showMainForm();
-        }
-
-        private void showMainForm()
+        private void ShowMainForm()
         {
             notifyIcon1.Visible = false;
             this.ShowInTaskbar = true;
             WindowState = FormWindowState.Normal;
         }
 
-        private void toolStripMenuItem2_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
+        private void toolStripMenuItem2_Click(object sender, EventArgs e) => Close();
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -275,18 +310,17 @@ namespace ZapretUI
                 buttonReboot.Enabled = true;
                 buttonReboot.Visible = true;
             }
-
         }
 
         private async void buttonReboot_Click(object sender, EventArgs e)
         {
-            buttons(false);
-            labelStatus.Text += "                 Rebooting...";
-            string output = await ScriptStop();
-            await startScript();
+            SetButtonsEnabled(false);
+            UpdateStatus("Rebooting...");
 
-            buttons(true);
+            await StopScript();
+            await StartScript();
 
+            SetButtonsEnabled(true);
             buttonStart.Enabled = false;
             buttonStart.Visible = true;
             buttonReboot.Enabled = false;
@@ -295,137 +329,121 @@ namespace ZapretUI
 
         private void buttonCheckUpd_Click(object sender, EventArgs e)
         {
-            string GitZapret, GitUI;
-            string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            GitZapret = GetLastVersion(1);
-            GitUI = GetLastVersion(2);
+            string gitZapretVersion = GetLastVersion(1);
+            string gitUIVersion = GetLastVersion(2);
 
-            if (GitZapret != localVersionZapret)
+            if (gitZapretVersion != _localVersionZapret)
             {
-                if (MessageBox.Show("Вышел патч на скрипты Zapret\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
+                if (MessageBox.Show("Вышел патч на скрипты Zapret\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
+                    string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    Directory.Delete(Path.Combine(workDir, $"{ZapretBaseName}{_localVersionZapret}"), true);
 
-                    DirectoryInfo zapretDir = new DirectoryInfo(workDir + "/zapret-discord-youtube-" + localVersionZapret);
-                    zapretDir.Delete(true);
-                    loadLastZapret(workDir, GitZapret);
-                    forceExit = true;
+                    LoadLastZapret(workDir, gitZapretVersion);
+                    _forceExit = true;
                     Application.Restart();
-                    Environment.Exit(0);
                 }
-
             }
-            else if (GitUI != localVersionUI)
+            else if (gitUIVersion != LocalVersionUI)
             {
                 File.Move("ZapretUI.exe", "ZapretUIUpdate.exe");
-                UpdateSelf();
-                //DownloadFile("https://github.com/ConDucTorLehich/ZapretUI/releases/download/0.0.9/ZapretUI.exe", workDir + "/ZapretUI.exe");
-
-                // System.IO.File.Delete(workDir + "/ZapretUI-Old.exe");
-
+                UpdateSelf(gitUIVersion);
             }
             else
             {
-                MessageBox.Show("Обновы нет.\nGit_Zapret: " + GitZapret + "\nGit_UI: " + GitUI);
+                MessageBox.Show($"Обновы нет.\nGit_Zapret: {gitZapretVersion}\nGit_UI: {gitUIVersion}");
             }
         }
 
-
         public string GetInstalledVersion()
         {
-            string word = "set \"LOCAL_VERSION=", result;
+            const string versionPrefix = "set \"LOCAL_VERSION=";
+
             try
             {
                 string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                DirectoryInfo d = new DirectoryInfo(workDir);
-                DirectoryInfo[] directories = d.GetDirectories("zapret-discord-youtube-*");
-                string zapretDir = directories[0].FullName;
+                var directories = new DirectoryInfo(workDir).GetDirectories($"{ZapretBaseName}*");
 
-                string text = File.ReadAllText(zapretDir + "/service.bat");
-                int startIndex = text.IndexOf(word) + word.Length;
+                if (directories.Length == 0)
+                    return "error";
+
+                string serviceBatPath = Path.Combine(directories[0].FullName, "service.bat");
+                string text = File.ReadAllText(serviceBatPath);
+
+                int startIndex = text.IndexOf(versionPrefix) + versionPrefix.Length;
                 int endIndex = text.IndexOf('"', startIndex);
-                result = text.Substring(startIndex, endIndex - startIndex).Trim();
 
-                return result;
+                return text.Substring(startIndex, endIndex - startIndex).Trim();
             }
             catch
             {
-                result = "error";
-                return result;
+                return "error";
             }
-
         }
 
         private string GetLastVersion(int type)
         {
-            string GIT_Version;
-            using (var wc = new System.Net.WebClient())
+            using (var wc = new WebClient())
             {
-                switch (type)
+                switch(type)
                 {
-                    case 1: return GIT_Version = wc.DownloadString("https://raw.githubusercontent.com/Flowseal/zapret-discord-youtube/main/.service/version.txt");
-                    case 2: return GIT_Version = wc.DownloadString("https://raw.githubusercontent.com/ConDucTorLehich/ZapretUI/refs/heads/master/ZapretUI/versionUI.txt");
-                    default: return GIT_Version = "error";
+                    case 1: return wc.DownloadString($"{GitHubZapretUrl}/raw/main/.service/version.txt");
+                    case 2: return wc.DownloadString($"{GitHubUIUrl}/raw/master/ZapretUI/versionUI.txt");
+                    default: return "error";
                 }
             }
         }
 
         public void DownloadFile(string url, string destinationPath)
         {
-            using (WebClient client = new WebClient())
+            using (var client = new WebClient())
             {
                 client.DownloadFile(url, destinationPath);
             }
         }
 
-        public void loadLastZapret(string dirWorkPath, string lastGIT_Zapret)
+        public void LoadLastZapret(string workDir, string version)
         {
-            string zipName = dirWorkPath + "/zapret-discord-youtube-" + lastGIT_Zapret + ".zip";
-            string downloadLink = "https://github.com/Flowseal/zapret-discord-youtube/releases/download/" + lastGIT_Zapret + "/zapret-discord-youtube-" + lastGIT_Zapret + ".zip";
+            string zipName = Path.Combine(workDir, $"{ZapretBaseName}{version}.zip");
+            string downloadLink = $"{GitHubZapretUrl}/releases/download/{version}/{ZapretBaseName}{version}.zip";
+
             DownloadFile(downloadLink, zipName);
-            ZipFile.ExtractToDirectory(zipName, dirWorkPath + "/zapret-discord-youtube-" + lastGIT_Zapret, Encoding.GetEncoding(866));
+            ZipFile.ExtractToDirectory(zipName, Path.Combine(workDir, $"{ZapretBaseName}{version}"), Encoding.GetEncoding(866));
+
             MessageBox.Show("Zapret успешно скачан!\nЗапускаемся!");
             File.Delete(zipName);
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(GetInstalledVersion());
-        }
-
         private void SetLabelVersion()
         {
-            string toLabel = "Zapret: " + localVersionZapret + "\nApp: " + localVersionUI;
-            labelVersion.Text = toLabel;
+            labelVersion.Text = $"Zapret: {_localVersionZapret}\nApp: {LocalVersionUI}";
         }
 
-        public void UpdateSelf()
+        public void UpdateSelf(string newVersion)
         {
-            var workDir = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            var selfFileName = Path.GetFileName(workDir);
-            var selfWithoutExt = Path.Combine(Path.GetDirectoryName(workDir),
-                                        Path.GetFileNameWithoutExtension(workDir));
-            //File.WriteAllBytes(selfWithoutExt + "Update.exe", buffer);
-            string loadVer = GetLastVersion(2);
-            string url = "https://github.com/ConDucTorLehich/ZapretUI/releases/download/" + loadVer + "/ZapretUI.exe";
-            DownloadFile("", workDir);
-            using (var batFile = new StreamWriter(File.Create(selfWithoutExt + "Update.bat")))
+            MessageBox.Show("Update for exe");
+            string workDir = Assembly.GetExecutingAssembly().Location;
+            string selfWithoutExt = Path.Combine(
+                Path.GetDirectoryName(workDir),
+                Path.GetFileNameWithoutExtension(workDir));
+
+            string downloadUrl = $"{GitHubUIUrl}/releases/download/{newVersion}/ZapretUI.exe";
+            DownloadFile(downloadUrl, workDir);
+
+            // Create update batch file
+            File.WriteAllText($"{selfWithoutExt}Update.bat",
+                "@ECHO OFF\n" +
+                "TIMEOUT /t 2 /nobreak > NUL\n" +
+                $"DEL \"{selfWithoutExt}Update.exe\" & START \"\" /B \"{workDir}\"");
+
+            var startInfo = new ProcessStartInfo($"{selfWithoutExt}Update.bat")
             {
-                batFile.WriteLine("@ECHO OFF");
-                batFile.WriteLine("TIMEOUT /t 1 /nobreak > NUL");
-                batFile.WriteLine("TASKKILL /IM \"{0}\" > NUL", selfWithoutExt + "Update.exe");
-                //batFile.WriteLine("MOVE \"{0}\" \"{1}\"", selfWithoutExt + "Update.exe", workDir);
-                batFile.WriteLine("DEL \"{0}\" & START \"\" /B \"{1}\"", selfWithoutExt + "Update.exe", workDir);
-            }
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                WorkingDirectory = Path.GetDirectoryName(workDir)
+            };
 
-            ProcessStartInfo startInfo = new ProcessStartInfo(selfWithoutExt + "Update.bat");
-            // Hide the terminal window
-            startInfo.CreateNoWindow = true;
-            startInfo.UseShellExecute = false;
-            startInfo.WorkingDirectory = Path.GetDirectoryName(workDir);
             Process.Start(startInfo);
-
-            File.Delete(selfWithoutExt + "Update.exe");
-            
             Environment.Exit(0);
         }
     }

@@ -169,7 +169,6 @@ namespace ZapretUI
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.crossYoutube = new System.Windows.Forms.PictureBox();
             this.crossDiscord = new System.Windows.Forms.PictureBox();
-            this.button1 = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.galkaYoutube)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.galkaDiscord)).BeginInit();
@@ -379,21 +378,9 @@ namespace ZapretUI
             this.crossDiscord.TabStop = false;
             this.crossDiscord.Visible = false;
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(197, 437);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 15;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Visible = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(278, 517);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.galkaYoutube);
             this.Controls.Add(this.galkaDiscord);
             this.Controls.Add(this.buttonCheckUpd);
@@ -417,7 +404,6 @@ namespace ZapretUI
             this.Text = "РКН Сосамба!";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.Resize += new System.EventHandler(this.Form1_Resize);
             this.contextMenuStrip1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.galkaYoutube)).EndInit();
@@ -435,7 +421,6 @@ namespace ZapretUI
         private ContextMenuStrip contextMenuStrip1;
         private ToolStripMenuItem показатьToolStripMenuItem;
         private ToolStripMenuItem выходToolStripMenuItem;
-        private Button button1;
     }
 }
 
