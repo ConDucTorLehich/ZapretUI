@@ -50,7 +50,6 @@ MIT License
 
 При возникновении проблем или предложений по улучшению:
 - Telegram: [@ConDucTorLeha](https://t.me/ConDucTorLeha)
-- GitHub Issues (если подключен репозиторий)
 
 ## Известные проблемы
 
