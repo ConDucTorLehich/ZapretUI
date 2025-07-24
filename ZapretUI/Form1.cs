@@ -16,7 +16,7 @@ namespace ZapretUI
     public partial class Form1 : Form
     {
         private bool _forceExit = false;
-        private const string LocalVersionUI = "0.1.1";
+        private const string LocalVersionUI = "0.1.2";
         private string _localVersionZapret;
         private const string ZapretBaseName = "zapret-discord-youtube-";
         private const string GitHubZapretUrl = "https://github.com/Flowseal/zapret-discord-youtube";
