@@ -19,7 +19,7 @@ namespace ZapretUI
     public partial class Form1 : Form
     {
         private bool _forceExit = true;
-        private const string LocalVersionUI = "0.1.31";
+        private const string LocalVersionUI = "0.1.32";
         private string _localVersionZapret;
         private const string ZapretBaseName = "zapret-discord-youtube-";
         private const string GitHubZapretUrl = "https://github.com/Flowseal/zapret-discord-youtube";
@@ -58,7 +58,7 @@ namespace ZapretUI
             string zapretDirPath = Path.Combine(workDir, $"{ZapretBaseName}{_localVersionZapret}");
             var zapretDirInfo = new DirectoryInfo(zapretDirPath);
 
-            CheckAndClearUpdates(zapretDirInfo);
+            CheckAndClearUpdates(new DirectoryInfo(workDir));
 
             // Initialize scripts combo box
             InitializeScriptsComboBox(zapretDirInfo);
@@ -109,6 +109,7 @@ namespace ZapretUI
             // Use single loop for both file types
             foreach (var file in zapretDirInfo.GetFiles())
             {
+                MessageBox.Show(file.Name);
                 if (file.Name == "ZapretUIUpdate.exe" || file.Name == "ZapretUIUpdate.bat")
                 {
                     file.Delete();
