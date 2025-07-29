@@ -29,7 +29,6 @@ namespace ZapretUI
         static System.Threading.Timer timer;
         long interval = 300000; //300 секунд
         static object synclock = new object();
-        static bool check = false;
 
         public Form1()
         {
