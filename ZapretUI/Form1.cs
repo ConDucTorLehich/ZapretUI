@@ -109,7 +109,6 @@ namespace ZapretUI
             // Use single loop for both file types
             foreach (var file in zapretDirInfo.GetFiles())
             {
-                MessageBox.Show(file.Name);
                 if (file.Name == "ZapretUIUpdate.exe" || file.Name == "ZapretUIUpdate.bat")
                 {
                     file.Delete();
