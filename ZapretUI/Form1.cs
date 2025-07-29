@@ -106,15 +106,17 @@ namespace ZapretUI
 
         private void CheckAndClearUpdates(DirectoryInfo zapretDirInfo)
         {
+            bool updated = false;
             // Use single loop for both file types
             foreach (var file in zapretDirInfo.GetFiles())
             {
                 if (file.Name == "ZapretUIUpdate.exe" || file.Name == "ZapretUIUpdate.bat")
                 {
-                    if (GetLastVersion(2) == LocalVersionUI) { MessageBox.Show("Обновление интерфейса прошло успешно!"); }
                     file.Delete();
+                    updated = true;
                 }
             }
+            if (updated) MessageBox.Show("Обновление интерфейса прошло успешно!");
         }
 
         private async void buttonStart_Click(object sender, EventArgs e)
@@ -292,8 +294,8 @@ namespace ZapretUI
 
         private async void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            //if (_forceExit)
-            await StopScript();
+            if (_forceExit)
+                await StopScript();
         }
 
         private void Form1_Resize(object sender, EventArgs e)
