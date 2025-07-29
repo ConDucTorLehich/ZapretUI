@@ -5,11 +5,14 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
+using System.Net.Mail;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ZapretUI
 {
@@ -21,6 +24,12 @@ namespace ZapretUI
         private const string ZapretBaseName = "zapret-discord-youtube-";
         private const string GitHubZapretUrl = "https://github.com/Flowseal/zapret-discord-youtube";
         private const string GitHubUIUrl = "https://github.com/ConDucTorLehich/ZapretUI";
+
+        //AutoUpdate 
+        static System.Threading.Timer timer;
+        long interval = 300000; //300 секунд
+        static object synclock = new object();
+        static bool check = false;
 
         public Form1()
         {
@@ -61,7 +70,10 @@ namespace ZapretUI
             // Modify scripts
             ModifyScripts(zapretDirInfo);
 
+            InitAutoUpdate();
+
             SetLabelVersion();
+
         }
 
         private void InitializeScriptsComboBox(DirectoryInfo zapretDirInfo)
@@ -99,7 +111,7 @@ namespace ZapretUI
             {
                 if (file.Name == "ZapretUIUpdate.exe" || file.Name == "ZapretUIUpdate.bat")
                 {
-                    if (GetLastVersion(2) == $"{LocalVersionUI}") { MessageBox.Show("Обновление интерфейса прошло успешно!"); }
+                    if (GetLastVersion(2) == LocalVersionUI) { MessageBox.Show("Обновление интерфейса прошло успешно!"); }
                     file.Delete();
                 }
             }
@@ -140,14 +152,14 @@ namespace ZapretUI
         {
             const string youtubeUrl = "https://www.youtube.com/";
             const string discordUrl = "https://dis.gd";
-            const int timeoutMs = 3000; // Уменьшил таймаут до 3 секунд
+            const int timeoutMs = 3000;
 
             try
             {
                 using (var cts = new CancellationTokenSource(timeoutMs))
                 using (var httpClient = new HttpClient() { Timeout = TimeSpan.FromMilliseconds(timeoutMs) })
                 {
-                    // Запускаем обе проверки параллельно
+
                     var youtubeTask = CheckConnectionAsync(httpClient, youtubeUrl, cts.Token);
                     var discordTask = CheckConnectionAsync(httpClient, discordUrl, cts.Token);
 
@@ -266,7 +278,7 @@ namespace ZapretUI
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.WindowsShutDown)
+            if (e.CloseReason != CloseReason.WindowsShutDown)
             {
                 if (_forceExit && MessageBox.Show(
                 "Вы собираетесь закрыть приложение?\n(Все скрипты и обходы будут завершены)",
@@ -362,6 +374,29 @@ namespace ZapretUI
             }
         }
 
+        public void InitAutoUpdate()
+        {
+            timer = new System.Threading.Timer(new TimerCallback(UpdateCheckingAuto), null, 0, interval);
+        }
+
+        private void UpdateCheckingAuto(object obj)
+        {
+            lock (synclock)
+            {
+                string gitZapretVersion = GetLastVersion(1);
+                string gitUIVersion = GetLastVersion(2);
+                if (gitZapretVersion != _localVersionZapret || gitUIVersion != LocalVersionUI)
+                {
+                    Invoke((MethodInvoker)delegate
+                    {
+                        updLabel.Visible = true;
+                        updArrowLabel.Visible = true;
+                    });
+                }
+
+            }
+        }
+
         public string GetInstalledVersion()
         {
             const string versionPrefix = "set \"LOCAL_VERSION=";
@@ -423,7 +458,7 @@ namespace ZapretUI
 
         private void SetLabelVersion()
         {
-            labelVersion.Text = $"Zapret: {_localVersionZapret}\nApp: {LocalVersionUI}";
+            labelVersion.Text = $"Zapret: {_localVersionZapret}\nApp GUI: {LocalVersionUI}";
         }
 
         public void UpdateSelf(string newVersion)

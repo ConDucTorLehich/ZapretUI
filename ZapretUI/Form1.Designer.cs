@@ -169,6 +169,8 @@ namespace ZapretUI
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.crossYoutube = new System.Windows.Forms.PictureBox();
             this.crossDiscord = new System.Windows.Forms.PictureBox();
+            this.updLabel = new System.Windows.Forms.Label();
+            this.updArrowLabel = new System.Windows.Forms.Label();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.galkaYoutube)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.galkaDiscord)).BeginInit();
@@ -378,15 +380,40 @@ namespace ZapretUI
             this.crossDiscord.TabStop = false;
             this.crossDiscord.Visible = false;
             // 
+            // updLabel
+            // 
+            this.updLabel.AutoSize = true;
+            this.updLabel.BackColor = System.Drawing.Color.Azure;
+            this.updLabel.ForeColor = System.Drawing.Color.Black;
+            this.updLabel.Location = new System.Drawing.Point(119, 486);
+            this.updLabel.Name = "updLabel";
+            this.updLabel.Size = new System.Drawing.Size(42, 26);
+            this.updLabel.TabIndex = 15;
+            this.updLabel.Text = "Update\r\nAvaible";
+            this.updLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.updLabel.Visible = false;
+            // 
+            // updArrowLabel
+            // 
+            this.updArrowLabel.AutoSize = true;
+            this.updArrowLabel.BackColor = System.Drawing.Color.Azure;
+            this.updArrowLabel.Location = new System.Drawing.Point(100, 493);
+            this.updArrowLabel.Name = "updArrowLabel";
+            this.updArrowLabel.Size = new System.Drawing.Size(22, 13);
+            this.updArrowLabel.TabIndex = 16;
+            this.updArrowLabel.Text = "<---";
+            this.updArrowLabel.Visible = false;
+            // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(278, 517);
+            this.Controls.Add(this.updArrowLabel);
+            this.Controls.Add(this.updLabel);
             this.Controls.Add(this.galkaYoutube);
             this.Controls.Add(this.galkaDiscord);
             this.Controls.Add(this.buttonCheckUpd);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.buttonUpd);
-            this.Controls.Add(this.labelVersion);
             this.Controls.Add(this.buttonStop);
             this.Controls.Add(this.buttonStart);
             this.Controls.Add(this.comboBox1);
@@ -396,6 +423,7 @@ namespace ZapretUI
             this.Controls.Add(this.crossYoutube);
             this.Controls.Add(this.crossDiscord);
             this.Controls.Add(this.buttonReboot);
+            this.Controls.Add(this.labelVersion);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -413,6 +441,7 @@ namespace ZapretUI
             ((System.ComponentModel.ISupportInitialize)(this.crossYoutube)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.crossDiscord)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -421,6 +450,8 @@ namespace ZapretUI
         private ContextMenuStrip contextMenuStrip1;
         private ToolStripMenuItem показатьToolStripMenuItem;
         private ToolStripMenuItem выходToolStripMenuItem;
+        private Label updLabel;
+        private Label updArrowLabel;
     }
 }
 
