@@ -15,7 +15,7 @@ namespace ZapretUI
 {
     public partial class Form1 : Form
     {
-        private bool _forceExit = false;
+        private bool _forceExit = true;
         private const string LocalVersionUI = "0.1.2";
         private string _localVersionZapret;
         private const string ZapretBaseName = "zapret-discord-youtube-";
@@ -36,7 +36,7 @@ namespace ZapretUI
                     "Загрузка Zapret",
                     MessageBoxButtons.YesNo) == DialogResult.No)
                 {
-                    _forceExit = true;
+                    _forceExit = false;
                     Environment.Exit(1);
                 }
                 else
@@ -99,6 +99,7 @@ namespace ZapretUI
             {
                 if (file.Name == "ZapretUIUpdate.exe" || file.Name == "ZapretUIUpdate.bat")
                 {
+                    if (GetLastVersion(2) == $"{LocalVersionUI}") { MessageBox.Show("Обновление интерфейса прошло успешно!"); }
                     file.Delete();
                 }
             }
@@ -265,19 +266,22 @@ namespace ZapretUI
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (!_forceExit && MessageBox.Show(
+            if (e.CloseReason == CloseReason.WindowsShutDown)
+            {
+                if (_forceExit && MessageBox.Show(
                 "Вы собираетесь закрыть приложение?\n(Все скрипты и обходы будут завершены)",
                 "РКН не сосать?",
                 MessageBoxButtons.YesNo) == DialogResult.No)
-            {
-                e.Cancel = true;
+                {
+                    e.Cancel = true;
+                }
             }
         }
 
         private async void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (!_forceExit)
-                await StopScript();
+            //if (_forceExit)
+            await StopScript();
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -340,14 +344,17 @@ namespace ZapretUI
                     Directory.Delete(Path.Combine(workDir, $"{ZapretBaseName}{_localVersionZapret}"), true);
 
                     LoadLastZapret(workDir, gitZapretVersion);
-                    _forceExit = true;
+                    _forceExit = false;
                     Application.Restart();
                 }
             }
             else if (gitUIVersion != LocalVersionUI)
             {
-                File.Move("ZapretUI.exe", "ZapretUIUpdate.exe");
-                UpdateSelf(gitUIVersion);
+                if (MessageBox.Show("Вышел патч на GUI\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    File.Move("ZapretUI.exe", "ZapretUIUpdate.exe");
+                    UpdateSelf(gitUIVersion);
+                }
             }
             else
             {
@@ -385,7 +392,7 @@ namespace ZapretUI
         {
             using (var wc = new WebClient())
             {
-                switch(type)
+                switch (type)
                 {
                     case 1: return wc.DownloadString($"{GitHubZapretUrl}/raw/main/.service/version.txt");
                     case 2: return wc.DownloadString($"{GitHubUIUrl}/raw/master/ZapretUI/versionUI.txt");
@@ -410,7 +417,7 @@ namespace ZapretUI
             DownloadFile(downloadLink, zipName);
             ZipFile.ExtractToDirectory(zipName, Path.Combine(workDir, $"{ZapretBaseName}{version}"), Encoding.GetEncoding(866));
 
-            MessageBox.Show("Zapret успешно скачан!\nЗапускаемся!");
+            MessageBox.Show("Скрипты Zapret успешно скачаны!");
             File.Delete(zipName);
         }
 
@@ -421,7 +428,6 @@ namespace ZapretUI
 
         public void UpdateSelf(string newVersion)
         {
-            MessageBox.Show("Update for exe");
             string workDir = Assembly.GetExecutingAssembly().Location;
             string selfWithoutExt = Path.Combine(
                 Path.GetDirectoryName(workDir),
