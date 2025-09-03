@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mail;
@@ -12,6 +14,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ZapretUI.Properties;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ZapretUI
@@ -77,9 +80,28 @@ namespace ZapretUI
 
         private void InitializeScriptsComboBox(DirectoryInfo zapretDirInfo)
         {
-            FileInfo[] scriptFiles = zapretDirInfo.GetFiles("g*.bat");
-            comboBox1.DataSource = scriptFiles;
-            comboBox1.DisplayMember = "Name";
+            if (Settings.Default.FirstStartScriptSave == false)
+            {
+                FileInfo[] scriptFiles = zapretDirInfo.GetFiles("g*.bat");
+                comboBox1.DataSource = scriptFiles;
+                comboBox1.DisplayMember = "Name";
+
+                System.Collections.Specialized.StringCollection coll = new System.Collections.Specialized.StringCollection();
+                foreach(var item in comboBox1.Items)
+                    coll.Add(item.ToString());
+                //coll.AddRange(comboBox1.Items.Cast<FileInfo>().ToArray());
+                Properties.Settings.Default.scriptCombo = coll;
+                Settings.Default.FirstStartScriptSave = true;
+                Properties.Settings.Default.Save();
+            } else
+            {
+                System.Collections.Specialized.StringCollection coll = Properties.Settings.Default.scriptCombo;
+                foreach (var item in coll)
+                    comboBox1.Items.Add(item);
+
+                comboBox1.SelectedItem = Properties.Settings.Default.lastChosen;
+            }
+            // Properties.Settings.Default.cb1 = comboBox1.DataSource.ToString();
         }
 
         private void PositionWindow()
@@ -144,8 +166,11 @@ namespace ZapretUI
             using (var process = new Process { StartInfo = startInfo })
             {
                 process.Start();
+                Thread.Sleep(2000);
                 await CrossOrTick();
                 UpdateStatus("Running!");
+                Properties.Settings.Default.lastChosen = comboBox1.SelectedItem.ToString();
+                Properties.Settings.Default.Save();
             }
         }
 
@@ -294,7 +319,11 @@ namespace ZapretUI
         private async void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             if (_forceExit)
+            {
                 await StopScript();
+
+            }
+                
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -353,6 +382,8 @@ namespace ZapretUI
             {
                 if (MessageBox.Show("Вышел патч на скрипты Zapret\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
+                    Properties.Settings.Default.FirstStartScriptSave = false;
+                    Properties.Settings.Default.Save();
                     string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                     Directory.Delete(Path.Combine(workDir, $"{ZapretBaseName}{_localVersionZapret}"), true);
 
@@ -487,6 +518,16 @@ namespace ZapretUI
 
             Process.Start(startInfo);
             Environment.Exit(0);
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("DiscordClicked");
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("YoutubeClicked");
         }
     }
 }
