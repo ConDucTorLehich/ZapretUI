@@ -87,13 +87,14 @@ namespace ZapretUI
                 comboBox1.DisplayMember = "Name";
 
                 System.Collections.Specialized.StringCollection coll = new System.Collections.Specialized.StringCollection();
-                foreach(var item in comboBox1.Items)
+                foreach (var item in comboBox1.Items)
                     coll.Add(item.ToString());
                 //coll.AddRange(comboBox1.Items.Cast<FileInfo>().ToArray());
                 Properties.Settings.Default.scriptCombo = coll;
                 Settings.Default.FirstStartScriptSave = true;
                 Properties.Settings.Default.Save();
-            } else
+            }
+            else
             {
                 System.Collections.Specialized.StringCollection coll = Properties.Settings.Default.scriptCombo;
                 foreach (var item in coll)
@@ -323,7 +324,7 @@ namespace ZapretUI
                 await StopScript();
 
             }
-                
+
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -522,12 +523,17 @@ namespace ZapretUI
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("DiscordClicked");
+            if (MessageBox.Show("Вы желаете запустить Discord?", "Discord Logo Clicked", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                string[] allFoundFiles = Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\..\\Local\\Discord\\", "Discord.exe", SearchOption.AllDirectories);
+                Process.Start(allFoundFiles[0]);
+            }
         }
 
         private void pictureBox2_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("YoutubeClicked");
+            if (MessageBox.Show("Вы желаете запустить YouTube в браузере по умолчанию?", "YouTube Logo Clicked", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                Process.Start("http://youtube.com");
         }
     }
 }
