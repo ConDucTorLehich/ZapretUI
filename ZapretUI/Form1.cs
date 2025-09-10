@@ -383,6 +383,7 @@ namespace ZapretUI
             {
                 if (MessageBox.Show("Вышел патч на скрипты Zapret\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
+                    StopScript();
                     Properties.Settings.Default.FirstStartScriptSave = false;
                     Properties.Settings.Default.Save();
                     string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -397,6 +398,7 @@ namespace ZapretUI
             {
                 if (MessageBox.Show("Вышел патч на GUI\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
+                    StopScript();
                     File.Move("ZapretUI.exe", "ZapretUIUpdate.exe");
                     UpdateSelf(gitUIVersion);
                 }
