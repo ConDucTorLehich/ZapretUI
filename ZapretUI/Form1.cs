@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -24,6 +25,7 @@ namespace ZapretUI
         private bool _forceExit = true;
         private const string LocalVersionUI = "0.1.32";
         private string _localVersionZapret;
+        private string _selectedScript;
         private const string ZapretBaseName = "zapret-discord-youtube-";
         private const string GitHubZapretUrl = "https://github.com/Flowseal/zapret-discord-youtube";
         private const string GitHubUIUrl = "https://github.com/ConDucTorLehich/ZapretUI";
@@ -75,6 +77,8 @@ namespace ZapretUI
             InitAutoUpdate();
 
             SetLabelVersion();
+
+            initMenuSettings();
 
         }
 
@@ -129,7 +133,7 @@ namespace ZapretUI
         private void CheckAndClearUpdates(DirectoryInfo zapretDirInfo)
         {
             bool updated = false;
-            // Use single loop for both file types
+            
             foreach (var file in zapretDirInfo.GetFiles())
             {
                 if (file.Name == "ZapretUIUpdate.exe" || file.Name == "ZapretUIUpdate.bat")
@@ -143,7 +147,7 @@ namespace ZapretUI
 
         private async void buttonStart_Click(object sender, EventArgs e)
         {
-            UpdateStatus("Starting...");
+
             SetButtonsEnabled(false);
             await StartScript();
             SetButtonsEnabled(true);
@@ -157,6 +161,7 @@ namespace ZapretUI
                 $"{ZapretBaseName}{_localVersionZapret}",
                 comboBox1.Text);
 
+            _selectedScript = comboBox1.SelectedItem.ToString();
             var startInfo = new ProcessStartInfo(scriptPath)
             {
                 CreateNoWindow = true,
@@ -166,10 +171,12 @@ namespace ZapretUI
 
             using (var process = new Process { StartInfo = startInfo })
             {
+                UpdateStatus("Starting...");
                 process.Start();
                 Thread.Sleep(2000);
+                UpdateStatus();
                 await CrossOrTick();
-                UpdateStatus("Running!");
+                // UpdateStatus();
                 Properties.Settings.Default.lastChosen = comboBox1.SelectedItem.ToString();
                 Properties.Settings.Default.Save();
             }
@@ -223,7 +230,6 @@ namespace ZapretUI
 
         private void UpdateConnectionStatus(bool youtubeStatus, bool discordStatus)
         {
-            // Используем Invoke для безопасного обновления UI из другого потока
             if (InvokeRequired)
             {
                 Invoke(new Action(() => UpdateConnectionStatus(youtubeStatus, discordStatus)));
@@ -236,6 +242,16 @@ namespace ZapretUI
             crossDiscord.Visible = !discordStatus;
         }
 
+        private void UpdateStatus()
+        {
+            string status;
+            Process[] pname = Process.GetProcessesByName("winws");
+            if (pname.Length == 0)
+                status = "Stopped";
+            else
+                status = "Running!";
+            labelStatus.Text = $"Status: {status}";
+        }
         private void UpdateStatus(string status)
         {
             labelStatus.Text = $"Status: {status}";
@@ -243,14 +259,14 @@ namespace ZapretUI
 
         private async void buttonUpd_Click(object sender, EventArgs e)
         {
-            bool wasRunning = labelStatus.Text == "Status: Running!";
+            // bool wasRunning = labelStatus.Text == "Status: Running!";
 
             SetButtonsEnabled(false);
             UpdateStatus("Updating...");
 
             await CrossOrTick();
 
-            UpdateStatus(wasRunning ? "Running!" : "Stopped");
+            UpdateStatus();
             SetButtonsEnabled(true);
         }
 
@@ -290,14 +306,15 @@ namespace ZapretUI
 
         private async void buttonStop_Click(object sender, EventArgs e)
         {
-            await StopScript();
             UpdateStatus("Stopping...");
+            await StopScript();
+
 
             // Reset all connection indicators
             galkaDiscord.Visible = galkaYoutube.Visible = false;
             crossDiscord.Visible = crossYoutube.Visible = false;
 
-            UpdateStatus("Stopped");
+            UpdateStatus();
             buttonStart.Enabled = true;
             buttonStart.Visible = true;
             buttonReboot.Visible = false;
@@ -352,11 +369,22 @@ namespace ZapretUI
         {
             if (labelStatus.Text != "Status: Stopped")
             {
-                buttonStart.Enabled = false;
-                buttonStart.Visible = false;
-                buttonReboot.Enabled = true;
-                buttonReboot.Visible = true;
+                if (comboBox1.SelectedItem.ToString() != _selectedScript)
+                {
+                    buttonStart.Enabled = false;
+                    buttonStart.Visible = false;
+                    buttonReboot.Enabled = true;
+                    buttonReboot.Visible = true;
+                }
+                else
+                {
+                    buttonReboot.Enabled = false;
+                    buttonReboot.Visible = false;
+                    buttonStart.Enabled = false;
+                    buttonStart.Visible = true;
+                }
             }
+
         }
 
         private async void buttonReboot_Click(object sender, EventArgs e)
@@ -374,7 +402,7 @@ namespace ZapretUI
             buttonReboot.Visible = false;
         }
 
-        private void buttonCheckUpd_Click(object sender, EventArgs e)
+        private async void buttonCheckUpd_Click(object sender, EventArgs e)
         {
             string gitZapretVersion = GetLastVersion(1);
             string gitUIVersion = GetLastVersion(2);
@@ -383,7 +411,7 @@ namespace ZapretUI
             {
                 if (MessageBox.Show("Вышел патч на скрипты Zapret\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    StopScript();
+                    await StopScript();
                     Properties.Settings.Default.FirstStartScriptSave = false;
                     Properties.Settings.Default.Save();
                     string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -398,7 +426,7 @@ namespace ZapretUI
             {
                 if (MessageBox.Show("Вышел патч на GUI\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    StopScript();
+                    await StopScript();
                     File.Move("ZapretUI.exe", "ZapretUIUpdate.exe");
                     UpdateSelf(gitUIVersion);
                 }
@@ -536,6 +564,48 @@ namespace ZapretUI
         {
             if (MessageBox.Show("Вы желаете запустить YouTube в браузере по умолчанию?", "YouTube Logo Clicked", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 Process.Start("http://youtube.com");
+        }
+
+        private void buttonClose_Click(object sender, EventArgs e)
+        {
+            tabControl1.Hide();
+        }
+
+        private void buttonApply_Click(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Save();
+            SetStartup();
+        }
+
+        private void initMenuSettings()
+        {
+            checkBoxBlackPheme.Checked = Properties.Settings.Default.blackPheme;
+            checkBoxStartOnWind.Checked = Properties.Settings.Default.startOnWind;
+        }
+
+        private void buttonSettingsShow_Click(object sender, EventArgs e)
+        {
+            tabControl1.Show();
+        }
+
+        private void checkBoxStartOnWind_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.startOnWind = checkBoxStartOnWind.Checked;
+        }
+
+        private void checkBoxBlackPheme_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.blackPheme = checkBoxBlackPheme.Checked;
+        }
+        private void SetStartup()
+        {
+            RegistryKey rk = Registry.CurrentUser.OpenSubKey
+                ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+
+            if (Properties.Settings.Default.startOnWind == true)
+                rk.SetValue("ZapretUI", Application.ExecutablePath);
+            else
+                rk.DeleteValue("ZapretUI", false);
         }
     }
 }

@@ -102,6 +102,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\png-transparent-computer-icons-exit-miscellaneous-angle-text.png" />
+    <None Include="Resources\png-transparent-computer-icons-exit-miscellaneous-angle-text1.png" />
+    <None Include="Resources\1fe1244be3f8bd8fee6e1f7167fb57a8.png" />
     <Content Include="versionUI.txt" />
   </ItemGroup>
   <ItemGroup>

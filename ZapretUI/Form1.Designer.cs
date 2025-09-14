@@ -171,6 +171,14 @@ namespace ZapretUI
             this.crossDiscord = new System.Windows.Forms.PictureBox();
             this.updLabel = new System.Windows.Forms.Label();
             this.updArrowLabel = new System.Windows.Forms.Label();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.buttonClose = new System.Windows.Forms.Button();
+            this.buttonApply = new System.Windows.Forms.Button();
+            this.checkBoxBlackPheme = new System.Windows.Forms.CheckBox();
+            this.checkBoxStartOnWind = new System.Windows.Forms.CheckBox();
+            this.labelSettings = new System.Windows.Forms.Label();
+            this.buttonSettingsShow = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.galkaYoutube)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.galkaDiscord)).BeginInit();
@@ -178,6 +186,8 @@ namespace ZapretUI
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.crossYoutube)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.crossDiscord)).BeginInit();
+            this.tabControl1.SuspendLayout();
+            this.tabPage1.SuspendLayout();
             this.SuspendLayout();
             // 
             // notifyIcon1
@@ -406,9 +416,97 @@ namespace ZapretUI
             this.updArrowLabel.Text = "<---";
             this.updArrowLabel.Visible = false;
             // 
+            // tabControl1
+            // 
+            this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Location = new System.Drawing.Point(0, -25);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(282, 540);
+            this.tabControl1.TabIndex = 17;
+            this.tabControl1.Visible = false;
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.buttonClose);
+            this.tabPage1.Controls.Add(this.buttonApply);
+            this.tabPage1.Controls.Add(this.checkBoxBlackPheme);
+            this.tabPage1.Controls.Add(this.checkBoxStartOnWind);
+            this.tabPage1.Controls.Add(this.labelSettings);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(274, 514);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "tabPage1";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // buttonClose
+            // 
+            this.buttonClose.Location = new System.Drawing.Point(166, 480);
+            this.buttonClose.Name = "buttonClose";
+            this.buttonClose.Size = new System.Drawing.Size(75, 23);
+            this.buttonClose.TabIndex = 4;
+            this.buttonClose.Text = "Закрыть";
+            this.buttonClose.UseVisualStyleBackColor = true;
+            this.buttonClose.Click += new System.EventHandler(this.buttonClose_Click);
+            // 
+            // buttonApply
+            // 
+            this.buttonApply.Location = new System.Drawing.Point(28, 480);
+            this.buttonApply.Name = "buttonApply";
+            this.buttonApply.Size = new System.Drawing.Size(75, 23);
+            this.buttonApply.TabIndex = 3;
+            this.buttonApply.Text = "Применить";
+            this.buttonApply.UseVisualStyleBackColor = true;
+            this.buttonApply.Click += new System.EventHandler(this.buttonApply_Click);
+            // 
+            // checkBoxBlackPheme
+            // 
+            this.checkBoxBlackPheme.AutoSize = true;
+            this.checkBoxBlackPheme.Location = new System.Drawing.Point(10, 92);
+            this.checkBoxBlackPheme.Name = "checkBoxBlackPheme";
+            this.checkBoxBlackPheme.Size = new System.Drawing.Size(93, 17);
+            this.checkBoxBlackPheme.TabIndex = 2;
+            this.checkBoxBlackPheme.Text = "Темная тема";
+            this.checkBoxBlackPheme.UseVisualStyleBackColor = true;
+            this.checkBoxBlackPheme.CheckedChanged += new System.EventHandler(this.checkBoxBlackPheme_CheckedChanged);
+            // 
+            // checkBoxStartOnWind
+            // 
+            this.checkBoxStartOnWind.AutoSize = true;
+            this.checkBoxStartOnWind.Location = new System.Drawing.Point(10, 69);
+            this.checkBoxStartOnWind.Name = "checkBoxStartOnWind";
+            this.checkBoxStartOnWind.Size = new System.Drawing.Size(159, 17);
+            this.checkBoxStartOnWind.TabIndex = 1;
+            this.checkBoxStartOnWind.Text = "Запуск при включении ПК";
+            this.checkBoxStartOnWind.UseVisualStyleBackColor = true;
+            this.checkBoxStartOnWind.CheckedChanged += new System.EventHandler(this.checkBoxStartOnWind_CheckedChanged);
+            // 
+            // labelSettings
+            // 
+            this.labelSettings.Font = new System.Drawing.Font("Sylfaen", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.labelSettings.Location = new System.Drawing.Point(55, 9);
+            this.labelSettings.Name = "labelSettings";
+            this.labelSettings.Size = new System.Drawing.Size(159, 42);
+            this.labelSettings.TabIndex = 0;
+            this.labelSettings.Text = "Настройки";
+            // 
+            // buttonSettingsShow
+            // 
+            this.buttonSettingsShow.BackgroundImage = global::ZapretUI.Properties.Resources._1fe1244be3f8bd8fee6e1f7167fb57a8;
+            this.buttonSettingsShow.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.buttonSettingsShow.Location = new System.Drawing.Point(5, 442);
+            this.buttonSettingsShow.Name = "buttonSettingsShow";
+            this.buttonSettingsShow.Size = new System.Drawing.Size(30, 30);
+            this.buttonSettingsShow.TabIndex = 18;
+            this.buttonSettingsShow.UseVisualStyleBackColor = true;
+            this.buttonSettingsShow.Click += new System.EventHandler(this.buttonSettingsShow_Click);
+            // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(278, 517);
+            this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.updArrowLabel);
             this.Controls.Add(this.updLabel);
             this.Controls.Add(this.galkaYoutube);
@@ -426,6 +524,7 @@ namespace ZapretUI
             this.Controls.Add(this.crossDiscord);
             this.Controls.Add(this.buttonReboot);
             this.Controls.Add(this.labelVersion);
+            this.Controls.Add(this.buttonSettingsShow);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -442,6 +541,9 @@ namespace ZapretUI
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.crossYoutube)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.crossDiscord)).EndInit();
+            this.tabControl1.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -454,6 +556,14 @@ namespace ZapretUI
         private ToolStripMenuItem выходToolStripMenuItem;
         private Label updLabel;
         private Label updArrowLabel;
+        private TabControl tabControl1;
+        private TabPage tabPage1;
+        private CheckBox checkBoxBlackPheme;
+        private CheckBox checkBoxStartOnWind;
+        private Label labelSettings;
+        private Button buttonClose;
+        private Button buttonApply;
+        private Button buttonSettingsShow;
     }
 }
 

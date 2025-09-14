@@ -63,6 +63,16 @@ namespace ZapretUI.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap _1fe1244be3f8bd8fee6e1f7167fb57a8 {
+            get {
+                object obj = ResourceManager.GetObject("1fe1244be3f8bd8fee6e1f7167fb57a8", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap discordLogo {
             get {
                 object obj = ResourceManager.GetObject("discordLogo", resourceCulture);
@@ -86,6 +96,26 @@ namespace ZapretUI.Properties {
         internal static System.Drawing.Bitmap krestik {
             get {
                 object obj = ResourceManager.GetObject("krestik", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap png_transparent_computer_icons_exit_miscellaneous_angle_text {
+            get {
+                object obj = ResourceManager.GetObject("png-transparent-computer-icons-exit-miscellaneous-angle-text", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap png_transparent_computer_icons_exit_miscellaneous_angle_text1 {
+            get {
+                object obj = ResourceManager.GetObject("png-transparent-computer-icons-exit-miscellaneous-angle-text1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

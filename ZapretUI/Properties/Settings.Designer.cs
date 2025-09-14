@@ -57,5 +57,29 @@ namespace ZapretUI.Properties {
                 this["lastChosen"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool blackPheme {
+            get {
+                return ((bool)(this["blackPheme"]));
+            }
+            set {
+                this["blackPheme"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool startOnWind {
+            get {
+                return ((bool)(this["startOnWind"]));
+            }
+            set {
+                this["startOnWind"] = value;
+            }
+        }
     }
 }
