@@ -25,7 +25,7 @@ namespace ZapretUI
     public partial class Form1 : Form
     {
         private bool _forceExit = true;
-        private const string LocalVersionUI = "0.1.32";
+        private const string LocalVersionUI = "0.1.5";
         private string _localVersionZapret;
         private string _selectedScript;
         private const string ZapretBaseName = "zapret-discord-youtube-";
