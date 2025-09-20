@@ -81,5 +81,17 @@ namespace ZapretUI.Properties {
                 this["startOnWind"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool showAgain {
+            get {
+                return ((bool)(this["showAgain"]));
+            }
+            set {
+                this["showAgain"] = value;
+            }
+        }
     }
 }

@@ -343,6 +343,7 @@ namespace ZapretUI
             this.pictureBox1.TabIndex = 8;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.pictureBox1.MouseHover += new System.EventHandler(this.pictureBox1_MouseHover);
             // 
             // buttonUpd
             // 
@@ -367,6 +368,7 @@ namespace ZapretUI
             this.pictureBox2.TabIndex = 9;
             this.pictureBox2.TabStop = false;
             this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
+            this.pictureBox2.MouseHover += new System.EventHandler(this.pictureBox2_MouseHover);
             // 
             // crossYoutube
             // 
@@ -466,9 +468,9 @@ namespace ZapretUI
             this.checkBoxBlackPheme.AutoSize = true;
             this.checkBoxBlackPheme.Location = new System.Drawing.Point(10, 92);
             this.checkBoxBlackPheme.Name = "checkBoxBlackPheme";
-            this.checkBoxBlackPheme.Size = new System.Drawing.Size(93, 17);
+            this.checkBoxBlackPheme.Size = new System.Drawing.Size(230, 17);
             this.checkBoxBlackPheme.TabIndex = 2;
-            this.checkBoxBlackPheme.Text = "Темная тема";
+            this.checkBoxBlackPheme.Text = "Темная тема (В будующих обновлениях)";
             this.checkBoxBlackPheme.UseVisualStyleBackColor = true;
             this.checkBoxBlackPheme.CheckedChanged += new System.EventHandler(this.checkBoxBlackPheme_CheckedChanged);
             // 
@@ -509,8 +511,6 @@ namespace ZapretUI
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.updArrowLabel);
             this.Controls.Add(this.updLabel);
-            this.Controls.Add(this.galkaYoutube);
-            this.Controls.Add(this.galkaDiscord);
             this.Controls.Add(this.buttonCheckUpd);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.buttonUpd);
@@ -520,11 +520,13 @@ namespace ZapretUI
             this.Controls.Add(this.label1);
             this.Controls.Add(this.labelStatus);
             this.Controls.Add(this.pictureBox2);
-            this.Controls.Add(this.crossYoutube);
-            this.Controls.Add(this.crossDiscord);
             this.Controls.Add(this.buttonReboot);
             this.Controls.Add(this.labelVersion);
             this.Controls.Add(this.buttonSettingsShow);
+            this.Controls.Add(this.galkaYoutube);
+            this.Controls.Add(this.crossYoutube);
+            this.Controls.Add(this.galkaDiscord);
+            this.Controls.Add(this.crossDiscord);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;

@@ -16,10 +16,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZapretUI.Properties;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Net.NetworkInformation;
 
 namespace ZapretUI
 {
+
+
     public partial class Form1 : Form
     {
         private bool _forceExit = true;
@@ -55,6 +57,13 @@ namespace ZapretUI
                 else
                 {
                     string lastVersion = GetLastVersion(1);
+                    if (lastVersion == "error")
+                    {
+                        MessageBox.Show("Отсутствует интернет соединение, загрузка и дальнейшее использование" +
+                            " программы невозможно. Подключитесь к интернету и попробуйте снова.");
+                        _forceExit = false;
+                        Environment.Exit(1);
+                    }
                     LoadLastZapret(workDir, lastVersion);
                     _localVersionZapret = GetInstalledVersion();
                 }
@@ -80,6 +89,98 @@ namespace ZapretUI
 
             initMenuSettings();
 
+            //MessageBox.Show(ShowCheckBox("Вы желаете запустить Discord?", "Discord Logo Clicked").ToString());
+
+        }
+        public static bool ShowCheckBox(string text, string caption)
+        {
+            Form dialog = new Form()
+            {
+                Width = 250,
+                Height = 165,
+                Text = caption,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                StartPosition = FormStartPosition.CenterScreen,
+                MaximizeBox = false,
+                MinimizeBox = false,
+                BackColor = SystemColors.Window,
+                Padding = new Padding(10)
+            };
+
+            // Основная панель
+            TableLayoutPanel mainPanel = new TableLayoutPanel()
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 3
+            };
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50)); // Сообщение занимает всё доступное пространство
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));    // CheckBox
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));    // Кнопки
+
+            // Текст сообщения
+            Label messageLabel = new Label()
+            {
+                Text = text,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                AutoSize = false,
+                Height = 60, // Фиксированная высота для текста
+                Font = new Font("Segoe UI", 10f, FontStyle.Regular),
+                Margin = new Padding(7, 0, 0, 0)
+            };
+
+            // CheckBox
+            CheckBox checkBoxAgain = new CheckBox()
+            {
+                Text = "Больше не показывать",
+                AutoSize = true,
+                Margin = new Padding(10, 0, 0, 0),
+                Font = new Font("Segoe UI", 9f, FontStyle.Regular)
+            };
+
+            // Панель для кнопок
+            FlowLayoutPanel buttonPanel = new FlowLayoutPanel()
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                FlowDirection = FlowDirection.RightToLeft,
+                //Height = 40
+            };
+
+            // Кнопки
+            Button noButton = new Button()
+            {
+                Text = "Нет",
+                DialogResult = DialogResult.No,
+                Size = new Size(90, 30),
+                Font = new Font("Segoe UI", 9f, FontStyle.Regular),
+                Margin = new Padding(9, 0, 0, 0)
+            };
+
+            Button yesButton = new Button()
+            {
+                Text = "Да",
+                DialogResult = DialogResult.Yes,
+                Size = new Size(90, 30),
+                Font = new Font("Segoe UI", 9f, FontStyle.Regular),
+                Margin = new Padding(10, 0, 9, 0)
+            };
+
+            buttonPanel.Controls.Add(noButton);
+            buttonPanel.Controls.Add(yesButton);
+
+            mainPanel.Controls.Add(messageLabel, 0, 0);
+            mainPanel.Controls.Add(checkBoxAgain, 0, 1);
+            mainPanel.Controls.Add(buttonPanel, 0, 2);
+
+            buttonPanel.Anchor = AnchorStyles.Left;
+
+            dialog.Controls.Add(mainPanel);
+
+            DialogResult result = dialog.ShowDialog();
+            if (checkBoxAgain.Checked) { Settings.Default.showAgain = false; Settings.Default.Save(); }
+            return result == DialogResult.Yes;
         }
 
         private void InitializeScriptsComboBox(DirectoryInfo zapretDirInfo)
@@ -91,22 +192,22 @@ namespace ZapretUI
                 comboBox1.DisplayMember = "Name";
 
                 System.Collections.Specialized.StringCollection coll = new System.Collections.Specialized.StringCollection();
+
                 foreach (var item in comboBox1.Items)
                     coll.Add(item.ToString());
-                //coll.AddRange(comboBox1.Items.Cast<FileInfo>().ToArray());
-                Properties.Settings.Default.scriptCombo = coll;
+
+                Settings.Default.scriptCombo = coll;
                 Settings.Default.FirstStartScriptSave = true;
-                Properties.Settings.Default.Save();
+                Settings.Default.Save();
             }
             else
             {
-                System.Collections.Specialized.StringCollection coll = Properties.Settings.Default.scriptCombo;
+                System.Collections.Specialized.StringCollection coll = Settings.Default.scriptCombo;
                 foreach (var item in coll)
                     comboBox1.Items.Add(item);
 
-                comboBox1.SelectedItem = Properties.Settings.Default.lastChosen;
+                comboBox1.SelectedItem = Settings.Default.lastChosen;
             }
-            // Properties.Settings.Default.cb1 = comboBox1.DataSource.ToString();
         }
 
         private void PositionWindow()
@@ -133,7 +234,7 @@ namespace ZapretUI
         private void CheckAndClearUpdates(DirectoryInfo zapretDirInfo)
         {
             bool updated = false;
-            
+
             foreach (var file in zapretDirInfo.GetFiles())
             {
                 if (file.Name == "ZapretUIUpdate.exe" || file.Name == "ZapretUIUpdate.bat")
@@ -404,42 +505,53 @@ namespace ZapretUI
 
         private async void buttonCheckUpd_Click(object sender, EventArgs e)
         {
-            string gitZapretVersion = GetLastVersion(1);
-            string gitUIVersion = GetLastVersion(2);
-
-            if (gitZapretVersion != _localVersionZapret)
+            if (NetworkInterface.GetIsNetworkAvailable())
             {
-                if (MessageBox.Show("Вышел патч на скрипты Zapret\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                {
-                    await StopScript();
-                    Properties.Settings.Default.FirstStartScriptSave = false;
-                    Properties.Settings.Default.Save();
-                    string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                    Directory.Delete(Path.Combine(workDir, $"{ZapretBaseName}{_localVersionZapret}"), true);
+                string gitZapretVersion = GetLastVersion(1);
+                string gitUIVersion = GetLastVersion(2);
 
-                    LoadLastZapret(workDir, gitZapretVersion);
-                    _forceExit = false;
-                    Application.Restart();
+                if (gitZapretVersion != _localVersionZapret)
+                {
+                    if (MessageBox.Show("Вышел патч на скрипты Zapret\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        await StopScript();
+                        Properties.Settings.Default.FirstStartScriptSave = false;
+                        Properties.Settings.Default.Save();
+                        string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                        Directory.Delete(Path.Combine(workDir, $"{ZapretBaseName}{_localVersionZapret}"), true);
+
+                        LoadLastZapret(workDir, gitZapretVersion);
+                        _forceExit = false;
+                        Application.Restart();
+                    }
                 }
-            }
-            else if (gitUIVersion != LocalVersionUI)
-            {
-                if (MessageBox.Show("Вышел патч на GUI\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                else if (gitUIVersion != LocalVersionUI)
                 {
-                    await StopScript();
-                    File.Move("ZapretUI.exe", "ZapretUIUpdate.exe");
-                    UpdateSelf(gitUIVersion);
+                    if (MessageBox.Show("Вышел патч на GUI\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        await StopScript();
+                        File.Move("ZapretUI.exe", "ZapretUIUpdate.exe");
+                        UpdateSelf(gitUIVersion);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show($"Обновы нет.\nGit_Zapret: {gitZapretVersion}\nGit_UI: {gitUIVersion}");
                 }
             }
             else
             {
-                MessageBox.Show($"Обновы нет.\nGit_Zapret: {gitZapretVersion}\nGit_UI: {gitUIVersion}");
+                MessageBox.Show("Отсутствует интернет соединение. " +
+                    "Подключитесь к интернету и попробуйте снова.");
             }
         }
 
         public void InitAutoUpdate()
         {
-            timer = new System.Threading.Timer(new TimerCallback(UpdateCheckingAuto), null, 0, interval);
+            if (NetworkInterface.GetIsNetworkAvailable())
+            {
+                timer = new System.Threading.Timer(new TimerCallback(UpdateCheckingAuto), null, 0, interval);
+            }
         }
 
         private void UpdateCheckingAuto(object obj)
@@ -488,15 +600,19 @@ namespace ZapretUI
 
         private string GetLastVersion(int type)
         {
-            using (var wc = new WebClient())
+            if (NetworkInterface.GetIsNetworkAvailable())
             {
-                switch (type)
+                using (var wc = new WebClient())
                 {
-                    case 1: return wc.DownloadString($"{GitHubZapretUrl}/raw/main/.service/version.txt");
-                    case 2: return wc.DownloadString($"{GitHubUIUrl}/raw/master/ZapretUI/versionUI.txt");
-                    default: return "error";
+                    switch (type)
+                    {
+                        case 1: return wc.DownloadString($"{GitHubZapretUrl}/raw/main/.service/version.txt");
+                        case 2: return wc.DownloadString($"{GitHubUIUrl}/raw/master/ZapretUI/versionUI.txt");
+                        default: return "error";
+                    }
                 }
             }
+            else { return "error"; }
         }
 
         public void DownloadFile(string url, string destinationPath)
@@ -553,7 +669,10 @@ namespace ZapretUI
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Вы желаете запустить Discord?", "Discord Logo Clicked", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            bool start = true;
+            if (Settings.Default.showAgain == true)
+                start = ShowCheckBox("Вы желаете запустить Discord?", "Discord Logo Clicked");
+            if (start)
             {
                 string[] allFoundFiles = Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\..\\Local\\Discord\\", "Discord.exe", SearchOption.AllDirectories);
                 Process.Start(allFoundFiles[0]);
@@ -562,12 +681,16 @@ namespace ZapretUI
 
         private void pictureBox2_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Вы желаете запустить YouTube в браузере по умолчанию?", "YouTube Logo Clicked", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            bool start = true;
+            if (Settings.Default.showAgain == true)
+                start = ShowCheckBox("Вы желаете запустить YouTube в браузере по умолчанию?", "YouTube Logo Clicked");
+            if (start)
                 Process.Start("http://youtube.com");
         }
 
         private void buttonClose_Click(object sender, EventArgs e)
         {
+            initMenuSettings();
             tabControl1.Hide();
         }
 
@@ -575,6 +698,8 @@ namespace ZapretUI
         {
             Properties.Settings.Default.Save();
             SetStartup();
+            ShowToolTip("Настройки применены");
+
         }
 
         private void initMenuSettings()
@@ -597,15 +722,38 @@ namespace ZapretUI
         {
             Properties.Settings.Default.blackPheme = checkBoxBlackPheme.Checked;
         }
+
         private void SetStartup()
         {
-            RegistryKey rk = Registry.CurrentUser.OpenSubKey
+            RegistryKey rk = Registry.LocalMachine.OpenSubKey
                 ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
 
+            string Path = Application.ExecutablePath;
+
             if (Properties.Settings.Default.startOnWind == true)
-                rk.SetValue("ZapretUI", Application.ExecutablePath);
+            {
+                rk.SetValue("ZapretUI", Path);
+            }
             else
+            {
                 rk.DeleteValue("ZapretUI", false);
+            }
+        }
+
+        private void ShowToolTip(string message)
+        {
+            ToolTip notySet = new ToolTip();
+            notySet.Show(message, this, Cursor.Position.X - this.Location.X - 40, Cursor.Position.Y - this.Location.Y - 20, 1000);
+        }
+
+        private void pictureBox1_MouseHover(object sender, EventArgs e)
+        {
+            new ToolTip().SetToolTip(pictureBox1, "Запустить Discord");
+        }
+
+        private void pictureBox2_MouseHover(object sender, EventArgs e)
+        {
+            new ToolTip().SetToolTip(pictureBox2, "Запустить YouTube");
         }
     }
 }
