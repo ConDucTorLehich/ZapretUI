@@ -1,16 +1,12 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Mail;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +21,7 @@ namespace ZapretUI
     public partial class Form1 : Form
     {
         private bool _forceExit = true;
-        private const string LocalVersionUI = "0.1.5";
+        private const string LocalVersionUI = "0.1.6";
         private string _localVersionZapret;
         private string _selectedScript;
         private const string ZapretBaseName = "zapret-discord-youtube-";
@@ -88,6 +84,8 @@ namespace ZapretUI
             SetLabelVersion();
 
             initMenuSettings();
+
+            UpdateStatus();
 
             //MessageBox.Show(ShowCheckBox("Вы желаете запустить Discord?", "Discord Logo Clicked").ToString());
 
@@ -505,44 +503,36 @@ namespace ZapretUI
 
         private async void buttonCheckUpd_Click(object sender, EventArgs e)
         {
-            if (NetworkInterface.GetIsNetworkAvailable())
+            string gitZapretVersion = GetLastVersion(1);
+            string gitUIVersion = GetLastVersion(2);
+
+            if (gitZapretVersion != _localVersionZapret && gitZapretVersion != "error")
             {
-                string gitZapretVersion = GetLastVersion(1);
-                string gitUIVersion = GetLastVersion(2);
+                if (MessageBox.Show("Вышел патч на скрипты Zapret\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    await StopScript();
+                    Properties.Settings.Default.FirstStartScriptSave = false;
+                    Properties.Settings.Default.Save();
+                    string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    Directory.Delete(Path.Combine(workDir, $"{ZapretBaseName}{_localVersionZapret}"), true);
 
-                if (gitZapretVersion != _localVersionZapret)
-                {
-                    if (MessageBox.Show("Вышел патч на скрипты Zapret\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                    {
-                        await StopScript();
-                        Properties.Settings.Default.FirstStartScriptSave = false;
-                        Properties.Settings.Default.Save();
-                        string workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                        Directory.Delete(Path.Combine(workDir, $"{ZapretBaseName}{_localVersionZapret}"), true);
-
-                        LoadLastZapret(workDir, gitZapretVersion);
-                        _forceExit = false;
-                        Application.Restart();
-                    }
+                    LoadLastZapret(workDir, gitZapretVersion);
+                    _forceExit = false;
+                    Application.Restart();
                 }
-                else if (gitUIVersion != LocalVersionUI)
+            }
+            else if (gitUIVersion != LocalVersionUI && gitUIVersion != "error")
+            {
+                if (MessageBox.Show("Вышел патч на GUI\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    if (MessageBox.Show("Вышел патч на GUI\nОбновиться?", "Update...", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                    {
-                        await StopScript();
-                        File.Move("ZapretUI.exe", "ZapretUIUpdate.exe");
-                        UpdateSelf(gitUIVersion);
-                    }
-                }
-                else
-                {
-                    MessageBox.Show($"Обновы нет.\nGit_Zapret: {gitZapretVersion}\nGit_UI: {gitUIVersion}");
+                    await StopScript();
+                    File.Move("ZapretUI.exe", "ZapretUIUpdate.exe");
+                    UpdateSelf(gitUIVersion);
                 }
             }
             else
             {
-                MessageBox.Show("Отсутствует интернет соединение. " +
-                    "Подключитесь к интернету и попробуйте снова.");
+                MessageBox.Show($"Обновы нет.\nGit_Zapret: {gitZapretVersion}\nGit_UI: {gitUIVersion}");
             }
         }
 
@@ -558,15 +548,26 @@ namespace ZapretUI
         {
             lock (synclock)
             {
-                string gitZapretVersion = GetLastVersion(1);
-                string gitUIVersion = GetLastVersion(2);
-                if (gitZapretVersion != _localVersionZapret || gitUIVersion != LocalVersionUI)
+                if (NetworkInterface.GetIsNetworkAvailable())
                 {
-                    Invoke((MethodInvoker)delegate
+                    string gitZapretVersion = GetLastVersion(1);
+                    string gitUIVersion = GetLastVersion(2);
+                    if (gitZapretVersion != _localVersionZapret || gitUIVersion != LocalVersionUI)
                     {
-                        updLabel.Visible = true;
-                        updArrowLabel.Visible = true;
-                    });
+                        if (gitZapretVersion != "error" || gitUIVersion != "error")
+                        {
+                            Invoke((MethodInvoker)delegate
+                            {
+                                updLabel.Visible = true;
+                                updArrowLabel.Visible = true;
+                            });
+                        }
+                        else
+                        {
+                            MessageBox.Show("Отсутствует интернет соединение или удаленный сервер не отвечает. Программа может работать некорректно.\n" +
+                                "Попробуйте снова позднее!");
+                        }
+                    }
                 }
 
             }
@@ -600,21 +601,70 @@ namespace ZapretUI
 
         private string GetLastVersion(int type)
         {
-            if (NetworkInterface.GetIsNetworkAvailable())
+            string stringVersion, choosenCase;
+            switch (type)
             {
-                using (var wc = new WebClient())
+                case 1: choosenCase = $"{GitHubZapretUrl}/raw/main/.service/version.txt"; break; //crash after a time, cant connect to server
+                case 2: choosenCase = $"{GitHubUIUrl}/raw/master/ZapretUI/versionUI.txt"; break;
+                default: choosenCase = "error"; break;
+            }
+            try
+            {
+                using (WebClient wc = new WebClient())
                 {
-                    switch (type)
+                    if (IsInternerOK())
                     {
-                        case 1: return wc.DownloadString($"{GitHubZapretUrl}/raw/main/.service/version.txt");
-                        case 2: return wc.DownloadString($"{GitHubUIUrl}/raw/master/ZapretUI/versionUI.txt");
-                        default: return "error";
+                        SetLoading(true);
+                        stringVersion = wc.DownloadString(choosenCase);
+                        SetLoading(false);
+                        return stringVersion;
+                    }
+                    else
+                    {
+                        return "error";
                     }
                 }
             }
-            else { return "error"; }
+            catch (WebException ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}");
+                return "error";
+            }
         }
 
+        bool IsInternerOK()
+        {
+            Ping ping = new Ping();
+            try
+            {
+                PingReply reply = ping.Send("www.google.com");
+                return reply.Status == IPStatus.Success;
+            }
+            catch (PingException)
+            {
+                return false;
+            }
+        }
+
+        private void SetLoading(bool displayLoader)
+        {
+            if (displayLoader)
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    //picLoader.Visible = true;
+                    this.Cursor = System.Windows.Forms.Cursors.WaitCursor;
+                });
+            }
+            else
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    //picLoader.Visible = false;
+                    this.Cursor = System.Windows.Forms.Cursors.Default;
+                });
+            }
+        }
         public void DownloadFile(string url, string destinationPath)
         {
             using (var client = new WebClient())
