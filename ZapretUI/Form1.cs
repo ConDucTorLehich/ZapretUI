@@ -548,28 +548,24 @@ namespace ZapretUI
         {
             lock (synclock)
             {
-                if (NetworkInterface.GetIsNetworkAvailable())
+                string gitZapretVersion = GetLastVersion(1);
+                string gitUIVersion = GetLastVersion(2);
+                if (gitZapretVersion != _localVersionZapret || gitUIVersion != LocalVersionUI)
                 {
-                    string gitZapretVersion = GetLastVersion(1);
-                    string gitUIVersion = GetLastVersion(2);
-                    if (gitZapretVersion != _localVersionZapret || gitUIVersion != LocalVersionUI)
+                    if (gitZapretVersion != "error" && gitUIVersion != "error")
                     {
-                        if (gitZapretVersion != "error" || gitUIVersion != "error")
+                        Invoke((MethodInvoker)delegate
                         {
-                            Invoke((MethodInvoker)delegate
-                            {
-                                updLabel.Visible = true;
-                                updArrowLabel.Visible = true;
-                            });
-                        }
-                        else
-                        {
-                            MessageBox.Show("Отсутствует интернет соединение или удаленный сервер не отвечает. Программа может работать некорректно.\n" +
-                                "Попробуйте снова позднее!");
-                        }
+                            updLabel.Visible = true;
+                            updArrowLabel.Visible = true;
+                        });
+                    }
+                    else
+                    {
+                        MessageBox.Show("Отсутствует интернет соединение или удаленный сервер не отвечает. Программа может работать некорректно.\n" +
+                            "Попробуйте снова позднее!");
                     }
                 }
-
             }
         }
 
