@@ -5,23 +5,6 @@ namespace ZapretUI
 {
     partial class Form1
     {
-        /// <summary>
-        /// Обязательная переменная конструктора.
-        /// </summary>
-        //private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        /// Освободить все используемые ресурсы.
-        /// </summary>
-        /// <param name="disposing">истинно, если управляемый ресурс должен быть удален; иначе ложно.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
 
         private static global::System.Resources.ResourceManager resourceMan;
 
@@ -283,7 +266,6 @@ namespace ZapretUI
             this.labelVersion.Name = "labelVersion";
             this.labelVersion.Size = new System.Drawing.Size(282, 38);
             this.labelVersion.TabIndex = 5;
-            this.labelVersion.Text = " ver.";
             this.labelVersion.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // labelStatus
@@ -465,12 +447,11 @@ namespace ZapretUI
             // 
             // checkBoxBlackPheme
             // 
-            this.checkBoxBlackPheme.AutoSize = true;
             this.checkBoxBlackPheme.Location = new System.Drawing.Point(10, 92);
             this.checkBoxBlackPheme.Name = "checkBoxBlackPheme";
-            this.checkBoxBlackPheme.Size = new System.Drawing.Size(230, 17);
+            this.checkBoxBlackPheme.Size = new System.Drawing.Size(239, 37);
             this.checkBoxBlackPheme.TabIndex = 2;
-            this.checkBoxBlackPheme.Text = "Темная тема (В будующих обновлениях)";
+            this.checkBoxBlackPheme.Text = "Темная тема (В будующих обновлениях/ Не применять, я предупредил)";
             this.checkBoxBlackPheme.UseVisualStyleBackColor = true;
             this.checkBoxBlackPheme.CheckedChanged += new System.EventHandler(this.checkBoxBlackPheme_CheckedChanged);
             // 
