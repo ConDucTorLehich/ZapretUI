@@ -504,8 +504,7 @@ namespace ZapretUI
         /// </summary>
         private void PositionWindow()
         {
-            SafeInvoke(() =>
-            {
+
                 try
                 {
                     Rectangle workingArea = Screen.GetWorkingArea(this);
@@ -525,7 +524,6 @@ namespace ZapretUI
                         notifyIcon1.Visible = false;
                 }
                 catch { }
-            });
         }
 
         /// <summary>
